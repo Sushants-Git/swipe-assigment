@@ -1,78 +1,198 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { Customer } from "@/app/components/tabs/CustomersTable";
 import { Invoice } from "@/app/components/tabs/InvoicesTable";
 import { Product } from "@/app/components/tabs/ProductsTable";
 
 interface tableState {
+    uuid: string;
     invoices: Invoice[];
     products: Product[];
     customers: Customer[];
 }
 
-const initialState: tableState = {
-    invoices: [
-        {
-            id: 1,
-            serialNumber: "INV001",
-            customerName: "John Doe",
-            productName: "Widget A",
-            qty: 5,
-            tax: 10,
-            totalAmount: 550,
-            date: "2023-05-01",
-            hasFile: true,
-        },
-        {
-            id: 2,
-            serialNumber: "INV002",
-            customerName: "Jane Smith",
-            productName: "Gadget B",
-            qty: 2,
-            tax: 5,
-            totalAmount: 210,
-            date: "2023-05-02",
-            hasFile: false,
-        },
-    ],
-    products: [
-        {
-            id: 1,
-            name: "Widget A",
-            quantity: 100,
-            unitPrice: 100,
-            tax: 10,
-            priceWithTax: 110,
-            discount: 5,
-        },
-        {
-            id: 2,
-            name: "Gadget B",
-            quantity: 50,
-            unitPrice: 200,
-            tax: 20,
-            priceWithTax: 220,
-            discount: 10,
-        },
-    ],
-    customers: [
-        {
-            id: 1,
-            name: "John Doe",
-            phoneNumber: "123-456-7890",
-            totalPurchaseAmount: 1000,
-            email: "john@example.com",
-            lastPurchaseDate: "2023-04-15",
-        },
-        {
-            id: 2,
-            name: "Jane Smith",
-            phoneNumber: "234-567-8901",
-            totalPurchaseAmount: 750,
-            email: "jane@example.com",
-            lastPurchaseDate: "2023-04-20",
-        },
-    ],
-};
+const products: Product[] = [
+    {
+        id: 1,
+        name: "iPHONE 16",
+        quantity: 1,
+        unitPrice: 79990.0,
+        tax: 18,
+        priceWithTax: 79990.0,
+        discount: 0,
+        serialNumber: "RAY/23-24/286",
+    },
+    {
+        id: 2,
+        name: "iPHONE 16 Cover",
+        quantity: 1,
+        unitPrice: 4599.0,
+        tax: 18,
+        priceWithTax: 4599.0,
+        discount: 0,
+        serialNumber: "RAY/23-24/286",
+    },
+    {
+        id: 3,
+        name: "Beats PRO X",
+        quantity: 1,
+        unitPrice: 24999.0,
+        tax: 18,
+        priceWithTax: 24999.0,
+        discount: 0,
+        serialNumber: "RAY/23-24/286",
+    },
+    {
+        id: 4,
+        name: "SPEAKER",
+        quantity: 1,
+        unitPrice: 10000.0,
+        tax: 0,
+        priceWithTax: 10000.0,
+        discount: 0,
+        serialNumber: "RAY/23-24/285",
+    },
+    {
+        id: 5,
+        name: "12 MM PLAIN GLASS",
+        quantity: 500,
+        unitPrice: 0.07,
+        tax: 0,
+        priceWithTax: 37.08,
+        discount: 0,
+        serialNumber: "RAY/23-24/282",
+    },
+    {
+        id: 6,
+        name: "plain glass",
+        quantity: 1,
+        unitPrice: 0.0,
+        tax: 18,
+        priceWithTax: 0.0,
+        discount: 0,
+        serialNumber: "RAY/23-24/280",
+    },
+];
+
+const invoices: Invoice[] = [
+    {
+        id: 1,
+        serialNumber: "RAY/23-24/286",
+        customerName: "Shounak",
+        productName: "iPHONE 16",
+        qty: 1,
+        tax: 18,
+        totalAmount: 79990.0,
+        date: "12 Nov 2024",
+    },
+    {
+        id: 2,
+        serialNumber: "RAY/23-24/286",
+        customerName: "Shounak",
+        productName: "iPHONE 16 Cover",
+        qty: 1,
+        tax: 18,
+        totalAmount: 4599.0,
+        date: "12 Nov 2024",
+    },
+    {
+        id: 3,
+        serialNumber: "RAY/23-24/286",
+        customerName: "Shounak",
+        productName: "Beats PRO X",
+        qty: 1,
+        tax: 18,
+        totalAmount: 24999.0,
+        date: "12 Nov 2024",
+    },
+    {
+        id: 4,
+        serialNumber: "RAY/23-24/285",
+        customerName: "Abhinav",
+        productName: "SPEAKER",
+        qty: 1,
+        tax: 0,
+        totalAmount: 10000.0,
+        date: "12 Nov 2024",
+    },
+    {
+        id: 5,
+        serialNumber: "RAY/23-24/282",
+        customerName: "RAM",
+        productName: "12 MM PLAIN GLASS",
+        qty: 500,
+        tax: 0,
+        totalAmount: 37.08,
+        date: "07 Nov 2024",
+    },
+    {
+        id: 6,
+        serialNumber: "RAY/23-24/280",
+        customerName: "Ramesh",
+        productName: "plain glass",
+        qty: 1,
+        tax: 18,
+        totalAmount: 0.0,
+        date: "06 Nov 2024",
+    },
+];
+
+const customers: Customer[] = [
+    {
+        id: 1,
+        name: "Shounak",
+        phoneNumber: 999999999,
+        totalPurchaseAmount: 109588.67,
+        email: "",
+        lastPurchaseDate: "12 Nov 2024",
+    },
+    {
+        id: 2,
+        name: "Abhinav",
+        phoneNumber: 888888888,
+        totalPurchaseAmount: 30495.0,
+        email: "",
+        lastPurchaseDate: "12 Nov 2024",
+    },
+    {
+        id: 3,
+        name: "Ramesh",
+        phoneNumber: 777777777,
+        totalPurchaseAmount: 282.96,
+        email: "",
+        lastPurchaseDate: "08 Nov 2024",
+    },
+    {
+        id: 4,
+        name: "RAM",
+        phoneNumber: 999999999,
+        totalPurchaseAmount: 126.06,
+        email: "",
+        lastPurchaseDate: "07 Nov 2024",
+    },
+    {
+        id: 5,
+        name: "geeetha",
+        phoneNumber: 666666666,
+        totalPurchaseAmount: 55708.0,
+        email: "",
+        lastPurchaseDate: "01 Nov 2024",
+    },
+];
+
+const initialState: tableState[] = [
+    {
+        uuid: "a5d80fba-0989-438a-840b-baefc30ea17f",
+        invoices: invoices,
+        products: products,
+        customers: customers,
+    },
+    {
+        uuid: "4b8aa280-c1e0-48b8-ac2b-8c6209457b07",
+        invoices: invoices,
+        products: products,
+        customers: customers,
+    },
+];
 
 const tableSlice = createSlice({
     name: "tabs",

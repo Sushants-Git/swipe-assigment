@@ -15,6 +15,7 @@ export interface Product {
     tax: number;
     priceWithTax: number;
     discount: number;
+    serialNumber: string;
 }
 
 export const ProductsTable = ({ products }: { products: Product[] }) => {
@@ -26,9 +27,10 @@ export const ProductsTable = ({ products }: { products: Product[] }) => {
                         <TableHead>Name</TableHead>
                         <TableHead>Quantity</TableHead>
                         <TableHead>Unit Price</TableHead>
-                        <TableHead>Tax</TableHead>
+                        <TableHead>Tax (%)</TableHead>
                         <TableHead>Price with Tax</TableHead>
                         <TableHead>Discount</TableHead>
+                        <TableHead>Serial Number</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -37,13 +39,14 @@ export const ProductsTable = ({ products }: { products: Product[] }) => {
                             <TableCell>{product.name}</TableCell>
                             <TableCell>{product.quantity}</TableCell>
                             <TableCell>
-                                ${product.unitPrice.toFixed(2)}
+                                {product.unitPrice.toFixed(2)}
                             </TableCell>
                             <TableCell>${product.tax.toFixed(2)}</TableCell>
                             <TableCell>
-                                ${product.priceWithTax.toFixed(2)}
+                                ₹{product.priceWithTax.toFixed(2)}
                             </TableCell>
                             <TableCell>{product.discount}%</TableCell>
+                            <TableCell>{product.serialNumber}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

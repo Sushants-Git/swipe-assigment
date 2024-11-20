@@ -10,10 +10,10 @@ import {
 export interface Customer {
     id: number;
     name: string;
-    phoneNumber: string;
+    phoneNumber: number;
     totalPurchaseAmount: number;
     email: string;
-    lastPurchaseDate: string; 
+    lastPurchaseDate: string;
 }
 
 export const CustomersTable = ({ customers }: { customers: Customer[] }) => {
@@ -35,7 +35,7 @@ export const CustomersTable = ({ customers }: { customers: Customer[] }) => {
                             <TableCell>{customer.name}</TableCell>
                             <TableCell>{customer.phoneNumber}</TableCell>
                             <TableCell>
-                                ${customer.totalPurchaseAmount.toFixed(2)}
+                                ₹{customer.totalPurchaseAmount.toFixed(2)}
                             </TableCell>
                             <TableCell>{customer.email}</TableCell>
                             <TableCell>{customer.lastPurchaseDate}</TableCell>

@@ -6,8 +6,6 @@ import {
     TableRow,
     TableCell,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { File } from "lucide-react";
 
 export interface Invoice {
     id: number;
@@ -18,7 +16,6 @@ export interface Invoice {
     tax: number;
     totalAmount: number;
     date: string;
-    hasFile: boolean;
 }
 
 export const InvoicesTable = ({ invoices }: { invoices: Invoice[] }) => {
@@ -31,10 +28,9 @@ export const InvoicesTable = ({ invoices }: { invoices: Invoice[] }) => {
                         <TableHead>Customer Name</TableHead>
                         <TableHead>Product Name</TableHead>
                         <TableHead>Quantity</TableHead>
-                        <TableHead>Tax</TableHead>
+                        <TableHead>Tax (%)</TableHead>
                         <TableHead>Total Amount</TableHead>
                         <TableHead>Date</TableHead>
-                        <TableHead>Invoice File</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -44,34 +40,11 @@ export const InvoicesTable = ({ invoices }: { invoices: Invoice[] }) => {
                             <TableCell>{invoice.customerName}</TableCell>
                             <TableCell>{invoice.productName}</TableCell>
                             <TableCell>{invoice.qty}</TableCell>
-                            <TableCell>${invoice.tax.toFixed(2)}</TableCell>
+                            <TableCell>{invoice.tax.toFixed(2)}</TableCell>
                             <TableCell>
-                                ${invoice.totalAmount.toFixed(2)}
+                                ₹{invoice.totalAmount.toFixed(2)}
                             </TableCell>
                             <TableCell>{invoice.date}</TableCell>
-                            <TableCell>
-                                {invoice.hasFile ? (
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() =>
-                                            alert(
-                                                `Viewing file for invoice ${invoice.serialNumber}`,
-                                            )
-                                        }
-                                    >
-                                        <File className="h-4 w-4" />
-                                        <span className="sr-only">
-                                            View file for invoice{" "}
-                                            {invoice.serialNumber}
-                                        </span>
-                                    </Button>
-                                ) : (
-                                    <span className="text-muted-foreground">
-                                        No file
-                                    </span>
-                                )}
-                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
