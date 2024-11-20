@@ -7,28 +7,68 @@ import { TabNavigation } from "./components/TabNavigation";
 
 import { Provider } from "react-redux";
 import { store } from "./state/store";
+import isExcelFile from "./utils/utils/isExcelFile";
 
-export default function App() {
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
+
+export default function ReactQueryWrapper() {
+    return (
+        <QueryClientProvider client={queryClient}>
+            <App />
+        </QueryClientProvider>
+    );
+}
+
+function App() {
     const [activeTab, setActiveTab] = React.useState<
         "invoices" | "products" | "customers"
     >("invoices");
     const [fileUploadStatus, setFileUploadStatus] = React.useState<
         "idle" | "success" | "error"
     >("idle");
-    const [fileName, setFileName] = React.useState<string | null>(null);
+    const [file, setFile] = React.useState<File | null>(null);
+
+    const queryClient = useQueryClient();
+
+    const extractExcel = useMutation({
+        mutationFn: async () => {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const res = await fetch("/api/excel", {
+                method: "POST",
+                body: formData,
+            });
+
+            console.log(res);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["excel_route"] });
+        },
+    });
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            setFileName(file.name);
-            setTimeout(() => {
-                setFileUploadStatus("success");
-                setTimeout(() => setFileUploadStatus("idle"), 3000);
-            }, 1000);
+            setFile(file);
+            setFileUploadStatus("success");
+            setTimeout(() => setFileUploadStatus("idle"), 2000);
         } else {
             setFileUploadStatus("error");
-            setFileName(null);
-            setTimeout(() => setFileUploadStatus("idle"), 3000);
+            setFile(null);
+            setTimeout(() => setFileUploadStatus("idle"), 2000);
+        }
+    };
+
+    const extractData = () => {
+        if (!file) return;
+
+        if (isExcelFile(file)) {
+            extractExcel.mutate();
         }
     };
 
@@ -37,8 +77,9 @@ export default function App() {
             <Layout>
                 <FileUploader
                     handleFileUpload={handleFileUpload}
-                    fileName={fileName}
+                    fileName={file?.name}
                     fileUploadStatus={fileUploadStatus}
+                    extractData={extractData}
                 />
                 <TabNavigation
                     activeTab={activeTab}

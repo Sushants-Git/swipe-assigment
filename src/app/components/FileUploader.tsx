@@ -9,17 +9,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { FileUp, File, AlertCircle } from "lucide-react";
+import { FileUp, AlertCircle } from "lucide-react";
 
 export const FileUploader = ({
     handleFileUpload,
     fileName,
     fileUploadStatus,
+    extractData,
 }: {
     handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    fileName: string | null;
+    fileName?: string;
     fileUploadStatus: "idle" | "success" | "error";
+    extractData: () => void;
 }) => {
+    console.log("render");
     return (
         <Card className="mb-8">
             <CardHeader>
@@ -52,21 +55,27 @@ export const FileUploader = ({
                                 variant="outline"
                                 className="w-full"
                             >
-                                <FileUp className="mr-2 h-4 w-4" />
-                                Choose File
+                                <span className="flex items-center gap-2">
+                                    <FileUp className="h-4 w-4" />
+                                    {fileName ? (
+                                        <span className="truncate block w-20 sm:w-32 md:w-48 lg:w-64 text-sm text-muted-foreground">
+                                            {fileName}
+                                        </span>
+                                    ) : (
+                                        "Choose File"
+                                    )}
+                                </span>
                             </Button>
                         </div>
                     </div>
                     <div className="flex gap-3">
-                        <Button type="submit" className="flex-shrink-0">
+                        <Button
+                            type="submit"
+                            className="flex-shrink-0"
+                            onClick={extractData}
+                        >
                             Extract Data
                         </Button>
-                        {fileName && (
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <File className="h-4 w-4" />
-                                {fileName}
-                            </div>
-                        )}
                     </div>
                 </div>
                 <FileUploadStatus status={fileUploadStatus} />
