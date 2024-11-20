@@ -3,23 +3,20 @@ import { FileText, Package, Users } from "lucide-react";
 import { InvoicesTable } from "./tabs/InvoicesTable";
 import { ProductsTable } from "./tabs/ProductsTable";
 import { CustomersTable } from "./tabs/CustomersTable";
-import { Invoice } from "./tabs/InvoicesTable";
-import { Product } from "./tabs/ProductsTable";
-import { Customer } from "./tabs/CustomersTable";
+import { useSelector } from "react-redux";
+import { RootState } from "../state/store";
 
 export const TabNavigation = ({
     activeTab,
     setActiveTab,
-    invoices,
-    products,
-    customers,
 }: {
     activeTab: "invoices" | "products" | "customers";
     setActiveTab: (activeTab: "invoices" | "products" | "customers") => void;
-    invoices: Invoice[];
-    products: Product[];
-    customers: Customer[];
 }) => {
+    const { products, customers, invoices } = useSelector(
+        (state: RootState) => state.tables,
+    );
+
     return (
         <Tabs
             value={activeTab}
