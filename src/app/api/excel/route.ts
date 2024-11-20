@@ -1,7 +1,4 @@
 import { NextResponse } from "next/server";
-import path from "path";
-import { mkdir, writeFile } from "fs/promises";
-import { existsSync } from "fs";
 import ExcelJS from "exceljs";
 
 export const POST = async (req: Request) => {
@@ -16,20 +13,12 @@ export const POST = async (req: Request) => {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const filename = file.name.replaceAll(" ", "_");
     try {
-        const filePath = path.join(process.cwd(), "temp/");
-        if (!existsSync(filePath)) {
-            await mkdir(filePath, { recursive: true });
-        }
-        const writenToPath = path.join(filePath, filename);
-        await writeFile(writenToPath, buffer);
-
         const workbook = new ExcelJS.Workbook();
 
         let columns = null;
 
-        const wb = await workbook.xlsx.readFile(writenToPath);
+        const wb = await workbook.xlsx.load(buffer);
 
         wb.eachSheet((sheet) => {
             sheet.eachRow({ includeEmpty: false }, function (row, index) {
@@ -43,7 +32,6 @@ export const POST = async (req: Request) => {
             Message: JSON.stringify(columns),
             status: 201,
         });
-        // return NextResponse.json({ Message: "Success", status: 201 });
     } catch (error) {
         console.log("Error occured ", error);
         return NextResponse.json({ Message: "Failed", status: 500 });
