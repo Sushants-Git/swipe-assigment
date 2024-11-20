@@ -110,7 +110,7 @@ export const TabNavigation = ({
     );
 };
 
-const TableHeader = ({ uuid }) => {
+const TableHeader = ({ uuid }: {uuid: string}) => {
     const [copied, setCopied] = React.useState(false);
 
     const copyToClipboard = () => {

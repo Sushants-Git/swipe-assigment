@@ -36,6 +36,8 @@ function App() {
 
     const extractExcel = useMutation({
         mutationFn: async () => {
+            if (!file) return;
+
             const formData = new FormData();
             formData.append("file", file);
 
@@ -44,7 +46,7 @@ function App() {
                 body: formData,
             });
 
-            console.log(res);
+            console.log(await res.text());
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["excel_route"] });

@@ -22,7 +22,6 @@ export const FileUploader = ({
     fileUploadStatus: "idle" | "success" | "error";
     extractData: () => void;
 }) => {
-    console.log("render");
     return (
         <Card className="mb-8">
             <CardHeader>
