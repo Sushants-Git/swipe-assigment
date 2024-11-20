@@ -18,18 +18,18 @@ export const POST = async (req: Request) => {
     const buffer = Buffer.from(await file.arrayBuffer());
     const filename = file.name.replaceAll(" ", "_");
     try {
-        const filePath = path.join(process.cwd(), "public/files/");
+        const filePath = path.join(process.cwd(), "temp/");
         if (!existsSync(filePath)) {
             await mkdir(filePath, { recursive: true });
         }
-        const writeToPath = path.join(filePath, filename);
-        await writeFile(writeToPath, buffer);
+        const writenToPath = path.join(filePath, filename);
+        await writeFile(writenToPath, buffer);
 
         const workbook = new ExcelJS.Workbook();
 
         let columns = null;
 
-        const wb = await workbook.xlsx.readFile(writeToPath);
+        const wb = await workbook.xlsx.readFile(writenToPath);
 
         wb.eachSheet((sheet) => {
             sheet.eachRow({ includeEmpty: false }, function (row, index) {
