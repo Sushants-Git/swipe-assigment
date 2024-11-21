@@ -17,7 +17,6 @@ const products: Product[] = [
         tax: 18,
         priceWithTax: 79990.0,
         discount: 0,
-        serialNumber: "RAY/23-24/286",
     },
     {
         id: 2,
@@ -27,7 +26,6 @@ const products: Product[] = [
         tax: 18,
         priceWithTax: 4599.0,
         discount: 0,
-        serialNumber: "RAY/23-24/286",
     },
     {
         id: 3,
@@ -37,7 +35,6 @@ const products: Product[] = [
         tax: 18,
         priceWithTax: 24999.0,
         discount: 0,
-        serialNumber: "RAY/23-24/286",
     },
     {
         id: 4,
@@ -47,7 +44,6 @@ const products: Product[] = [
         tax: 0,
         priceWithTax: 10000.0,
         discount: 0,
-        serialNumber: "RAY/23-24/285",
     },
     {
         id: 5,
@@ -57,7 +53,6 @@ const products: Product[] = [
         tax: 0,
         priceWithTax: 37.08,
         discount: 0,
-        serialNumber: "RAY/23-24/282",
     },
     {
         id: 6,
@@ -67,7 +62,6 @@ const products: Product[] = [
         tax: 18,
         priceWithTax: 0.0,
         discount: 0,
-        serialNumber: "RAY/23-24/280",
     },
 ];
 

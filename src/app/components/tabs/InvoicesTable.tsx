@@ -1,45 +1,34 @@
-import {
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableCell,
-} from "@/components/ui/table";
+import { Table, TableHeader, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { Invoice, TableHeaders } from "./TableHeaders";
 
-export const InvoicesTable = ({ invoices }: { invoices: Invoice[] }) => {
-    return (
-        <div className="overflow-x-auto">
-            <Table>
-                <TableHeader>
-                    <TableHeaders title="Invoices" />
-                </TableHeader>
-                <TableBody>
-                    {invoices.map((invoice) => (
-                        <TableRow key={invoice.id}>
-                            <TableCell>{invoice.serialNumber}</TableCell>
-                            <TableCell>{invoice.customerName}</TableCell>
-                            <TableCell>{invoice.productName}</TableCell>
-                            <TableCell>
-                                {Number(invoice?.qty)
-                                    ? Number(invoice?.qty)?.toFixed(2)
-                                    : invoice?.qty}
-                            </TableCell>
-                            <TableCell>
-                                {Number(invoice?.tax)
-                                    ? Number(invoice?.tax)?.toFixed(2)
-                                    : invoice?.tax}
-                            </TableCell>
-                            <TableCell>
-                                {Number(invoice?.totalAmount)
-                                    ? Number(invoice?.totalAmount)?.toFixed(2)
-                                    : invoice?.totalAmount}
-                            </TableCell>
-                            <TableCell>{invoice.date}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </div>
-    );
+const formatNumber = (value?: string | number) => {
+    const num = Number(value);
+    return isNaN(num) ? value : num.toFixed(2);
 };
+
+const InvoicesTableRow = ({ invoice }: { invoice: Invoice }) => (
+    <TableRow key={invoice.id}>
+        <TableCell>{invoice.serialNumber}</TableCell>
+        <TableCell>{invoice.customerName}</TableCell>
+        <TableCell>{invoice.productName}</TableCell>
+        <TableCell>{formatNumber(invoice.qty)}</TableCell>
+        <TableCell>{formatNumber(invoice.tax)}</TableCell>
+        <TableCell>{formatNumber(invoice.totalAmount)}</TableCell>
+        <TableCell>{invoice.date}</TableCell>
+    </TableRow>
+);
+
+export const InvoicesTable = ({ invoices }: { invoices: Invoice[] }) => (
+    <div className="overflow-x-auto">
+        <Table>
+            <TableHeader>
+                <TableHeaders title="Invoices" />
+            </TableHeader>
+            <TableBody>
+                {invoices.map((invoice) => (
+                    <InvoicesTableRow key={invoice.id} invoice={invoice} />
+                ))}
+            </TableBody>
+        </Table>
+    </div>
+);

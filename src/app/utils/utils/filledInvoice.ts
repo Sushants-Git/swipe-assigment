@@ -16,8 +16,9 @@ export default function fillInvoice(
             };
 
             if (rowNumber > start && rowNumber < gapAt) {
-                Array.from(invoiceMap).map(([index, targetColumnName]) => {
-                    invoice[targetColumnName] = row.values[index];
+                Array.from(invoiceMap as Map<number, keyof Invoice>).map(([index, targetColumnName]) => {
+                    //@ts-expect-error we are dynamically adding objects ts dosn't like that
+                    invoice[targetColumnName] = (row.values as ExcelJS.CellValue[])[index];
                 });
 
                 invoices.push(invoice as Invoice);

@@ -40,13 +40,13 @@ export const DataPreview = ({
     const renderTable = () => {
         switch (itemIndex) {
             case 0:
-                return <InvoicesPreview invoices={items[0].data} />;
+                return tables?.invoices && <InvoicesPreview invoices={tables?.invoices} />;
             case 1:
-                return <ProductsPreview products={items[1].data} />;
+                return tables?.products && <ProductsPreview products={tables?.products} />;
             case 2:
-                return <CustomersPreview customers={items[2].data} />;
+                return tables?.customers && <CustomersPreview customers={tables?.customers} />;
             default:
-                return <InvoicesPreview invoices={items[0].data} />;
+                return tables?.invoices && <InvoicesPreview invoices={tables?.invoices} />;
         }
     };
 
@@ -56,9 +56,7 @@ export const DataPreview = ({
             <DialogContent className="max-w-6xl">
                 <DialogHeader>
                     <DialogTitle>Extracted Data</DialogTitle>
-                    <DialogDescription>
-                        Preview of the extracted data
-                    </DialogDescription>
+                    <DialogDescription>Preview of the extracted data</DialogDescription>
                 </DialogHeader>
                 {isLoading ? (
                     <div className="flex justify-center items-center h-[400px]">
@@ -68,20 +66,14 @@ export const DataPreview = ({
                     <>
                         <div className="relative">
                             <div className="relative overflow-x-auto">
-                                <div className="max-h-[400px] overflow-y-auto">
-                                    {renderTable()}
-                                </div>
+                                <div className="max-h-[400px] overflow-y-auto">{renderTable()}</div>
                             </div>
                         </div>
                         <div className="flex justify-center mt-4">
                             {items.map((item, index) => (
                                 <Button
                                     key={item.title}
-                                    variant={
-                                        index === itemIndex
-                                            ? "default"
-                                            : "outline"
-                                    }
+                                    variant={index === itemIndex ? "default" : "outline"}
                                     size="sm"
                                     onClick={() => setItemIndex(index)}
                                     className="mx-1"

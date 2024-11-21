@@ -1,31 +1,27 @@
 "use client";
 
-import { ModeToggle } from "@/components/mode-toggle";
-import { FileUploader } from "./components/FileUploader";
-import React, { useCallback, useEffect } from "react";
-import { TabNavigation } from "./components/TabNavigation";
-
+import React, { useCallback, useEffect, useState, ChangeEvent } from "react";
 import { Provider, useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState, store } from "./state/store";
-import isExcelFile from "./utils/utils/isExcelFile";
-
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-
+import { QueryClient, QueryClientProvider, useMutation, useQueryClient } from "@tanstack/react-query";
 import ExcelJS from "exceljs";
-import getRandomRows from "./utils/utils/getRandomRows";
-import getSheetDetails from "./utils/utils/getSheetDetails";
+import { v4 as uuidv4 } from "uuid";
 
+import { store, AppDispatch, RootState } from "./state/store";
 import { changeHeader } from "./state/table/header-row-slice";
-import { DataPreview } from "./components/DataPreview";
-import { Button } from "@/components/ui/button";
-import fillInvoice from "./utils/utils/filledInvoice";
 import { setAllData } from "./state/preview/preview-slice";
 
-import { v4 as uuidv4 } from "uuid";
-import transformInvoiceData from "./utils/utils/transformLogic";
+import { ModeToggle } from "@/components/mode-toggle";
+import { FileUploader } from "./components/FileUploader";
+import { TabNavigation } from "./components/TabNavigation";
+import { DataPreview } from "./components/DataPreview";
+import { Button } from "@/components/ui/button";
+
+import isExcelFile from "./utils/utils/isExcelFile";
+import getSheetDetails from "./utils/utils/getSheetDetails";
+import getRandomRows from "./utils/utils/getRandomRows";
+import fillInvoice from "./utils/utils/filledInvoice";
 import fillCustomer from "./utils/utils/fillCustomer";
+import transformInvoiceData from "./utils/utils/transformLogic";
 
 type Mapping = {
     sourceColumnName: string;
@@ -38,11 +34,7 @@ type DataMappings = {
     Products: Mapping[];
 };
 
-export type Row =
-    | ExcelJS.CellValue[]
-    | {
-          [key: string]: ExcelJS.CellValue;
-      };
+export type Row = ExcelJS.CellValue[] | { [key: string]: ExcelJS.CellValue };
 
 const queryClient = new QueryClient();
 
@@ -57,21 +49,13 @@ export default function ReactQueryWrapper() {
 }
 
 function App() {
-    const [activeTab, setActiveTab] = React.useState<
-        "invoices" | "products" | "customers"
-    >("invoices");
-    // const [fileUploadStatus, setFileUploadStatus] = React.useState<
-    //     "idle" | "success" | "error"
-    // >("idle");
-    const [file, setFile] = React.useState<File | null>(null);
-
-    const [dialogOpen, setDialogOpen] = React.useState(false);
+    const [activeTab, setActiveTab] = useState<"invoices" | "products" | "customers">("invoices");
+    const [file, setFile] = useState<File | null>(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     const header = useSelector((state: RootState) => state.header.headerRow);
-    const dispatch = useDispatch<AppDispatch>();
-
     const extractedData = useSelector((state: RootState) => state.preview);
-
+    const dispatch = useDispatch<AppDispatch>();
     const queryClient = useQueryClient();
 
     const extractExcel = useMutation({
@@ -88,152 +72,88 @@ function App() {
                 method: "POST",
                 body: JSON.stringify({
                     headerRow,
-                    randomRows: randomRows.map(
-                        (row) => row.values satisfies Row,
-                    ),
+                    randomRows: randomRows.map((row) => row.values satisfies Row),
                 }),
             });
 
-            return await res.json();
+            return res.json();
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["excel_route"] });
-        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["excel_route"] }),
     });
 
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            setFile(file);
-            // setFileUploadStatus("success");
-            // setTimeout(() => setFileUploadStatus("idle"), 2000);
-        } else {
-            // setFileUploadStatus("error");
-            setFile(null);
-            // setTimeout(() => setFileUploadStatus("idle"), 2000);
-        }
+    const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = event.target.files?.[0];
+        setFile(selectedFile || null);
     };
 
     const extractData = async () => {
-        if (!file) return;
+        if (!file || !isExcelFile(file)) return;
 
         setDialogOpen(true);
 
-        if (file && isExcelFile(file)) {
-            const workbook = new ExcelJS.Workbook();
-            const buffer = Buffer.from(await file.arrayBuffer());
-            const wb = await workbook.xlsx.load(buffer);
+        const workbook = new ExcelJS.Workbook();
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const wb = await workbook.xlsx.load(buffer);
 
-            const { headerRow, headerRowNumber, gapAt } = getSheetDetails(wb);
+        const { headerRow, headerRowNumber, gapAt } = getSheetDetails(wb);
+        const randomRows = getRandomRows(wb, headerRowNumber + 1, gapAt, 3);
 
-            const randomRows = getRandomRows(wb, headerRowNumber + 1, gapAt, 3);
-
-            dispatch(changeHeader(headerRow));
-
-            extractExcel.mutate({ headerRow, randomRows });
-        }
+        dispatch(changeHeader(headerRow));
+        extractExcel.mutate({ headerRow, randomRows });
     };
 
-    const getSourceColumIndex = useCallback(
-        (sourceColumnName: string): number => {
-            if (header) {
-                return (header as (string | null)[]).indexOf(sourceColumnName);
-            }
-
-            return -1;
-        },
+    const getSourceColumnIndex = useCallback(
+        (sourceColumnName: string): number =>
+            header ? (header as (string | null)[]).indexOf(sourceColumnName) : -1,
         [header],
     );
 
     useEffect(() => {
-        if (extractExcel?.data?.mapping) {
-            const invoiceMap = new Map<number, string>();
+        if (!extractExcel?.data?.mapping) return;
 
-            const customerMap = new Map<number, string>();
+        const invoiceMap = new Map<number, string>();
+        const customerMap = new Map<number, string>();
 
-            (extractExcel.data.mapping as DataMappings).Invoices.forEach(
-                (mapping) =>
-                    invoiceMap.set(
-                        getSourceColumIndex(mapping.sourceColumnName),
-                        mapping.targetColumnName,
-                    ),
-            );
+        (extractExcel.data.mapping as DataMappings).Invoices.forEach((mapping) =>
+            invoiceMap.set(getSourceColumnIndex(mapping.sourceColumnName), mapping.targetColumnName),
+        );
 
-            (extractExcel.data.mapping as DataMappings).Customers.forEach(
-                (mapping) =>
-                    customerMap.set(
-                        getSourceColumIndex(mapping.sourceColumnName),
-                        mapping.targetColumnName,
-                    ),
-            );
+        (extractExcel.data.mapping as DataMappings).Customers.forEach((mapping) =>
+            customerMap.set(getSourceColumnIndex(mapping.sourceColumnName), mapping.targetColumnName),
+        );
 
-            const filler = async () => {
-                if (file) {
-                    const workbook = new ExcelJS.Workbook();
-                    const buffer = Buffer.from(await file.arrayBuffer());
-                    const wb = await workbook.xlsx.load(buffer);
+        const fillData = async () => {
+            if (!file) return;
 
-                    const { headerRowNumber, gapAt } = getSheetDetails(wb);
+            const workbook = new ExcelJS.Workbook();
+            const buffer = Buffer.from(await file.arrayBuffer());
+            const wb = await workbook.xlsx.load(buffer);
 
-                    const invoices = fillInvoice(
-                        wb,
-                        invoiceMap,
-                        headerRowNumber + 1,
-                        gapAt,
-                    );
+            const { headerRowNumber, gapAt } = getSheetDetails(wb);
+            const invoices = fillInvoice(wb, invoiceMap, headerRowNumber + 1, gapAt);
+            const customers = fillCustomer(wb, customerMap, invoices, headerRowNumber + 1, gapAt);
+            const { products } = transformInvoiceData(invoices);
 
-                    const customers = fillCustomer(
-                        wb,
-                        customerMap,
-                        invoices,
-                        headerRowNumber + 1,
-                        gapAt,
-                    );
+            dispatch(setAllData({ uuid: uuidv4(), invoices, products, customers }));
+        };
 
-                    const { products } = transformInvoiceData(invoices);
-
-                    dispatch(
-                        setAllData({
-                            uuid: uuidv4(),
-                            invoices,
-                            products: products,
-                            customers: customers,
-                        }),
-                    );
-                }
-            };
-
-            filler();
-        }
-    }, [extractExcel?.data?.mapping, file, getSourceColumIndex, dispatch]);
+        fillData();
+    }, [extractExcel?.data?.mapping, file, getSourceColumnIndex, dispatch]);
 
     return (
         <Layout>
-            <FileUploader
-                handleFileUpload={handleFileUpload}
-                fileName={file?.name}
-            >
+            <FileUploader handleFileUpload={handleFileUpload} fileName={file?.name}>
                 <DataPreview
                     dialogOpen={dialogOpen}
                     setDialogOpen={setDialogOpen}
                     tables={extractedData}
                     isLoading={extractExcel.isPending}
                 >
-                    <Button
-                        type="submit"
-                        className="flex-shrink-0"
-                        onClick={extractData}
-                    >
+                    <Button onClick={extractData} className="flex-shrink-0">
                         Extract Data
                     </Button>
                 </DataPreview>
             </FileUploader>
-            {
-                // <pre>
-                // {extractExcel?.data &&
-                //     JSON.stringify(extractExcel.data.mapping, null, 2)}
-                // </pre>
-            }
             <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
         </Layout>
     );
@@ -243,9 +163,7 @@ function Layout({ children }: { children: React.ReactNode }) {
     return (
         <div className="container mx-auto p-4 flex flex-col min-h-screen font-[family-name:var(--font-geist-sans)] relative">
             <ModeToggle />
-            <h1 className="text-3xl font-bold mb-6">
-                Invoice Management System
-            </h1>
+            <h1 className="text-3xl font-bold mb-6">Invoice Management System</h1>
             {children}
         </div>
     );

@@ -47,36 +47,35 @@ export default function fillCustomer(
             if (rowNumber > start && rowNumber < gapAt) {
                 const customerNameIndex =
                     Array.from(customerMap.entries()).find(
-                        ([_, targetName]) => targetName === "name",
+                        ([, targetName]) => targetName === "name",
                     )?.[0] ?? -1;
 
-                const customerName = row.values[customerNameIndex] as string;
+                const customerName = (row.values as ExcelJS.CellValue[])[customerNameIndex] as string;
 
                 if (!customerName) return;
 
-                const existingCustomerIndex = customers.findIndex(
-                    (c) => c.name === customerName,
-                );
+                const existingCustomerIndex = customers.findIndex((c) => c.name === customerName);
                 if (existingCustomerIndex === -1) {
-                    const customerAggregate =
-                        customerAggregates.get(customerName);
+                    const customerAggregate = customerAggregates.get(customerName);
                     const customer: Customer = {
                         id: customers.length + 1,
                         name: customerName,
-                        totalPurchaseAmount:
-                            customerAggregate?.totalPurchaseAmount || 0,
-                        lastPurchaseDate:
-                            customerAggregate?.lastPurchaseDate || "",
+                        totalPurchaseAmount: customerAggregate?.totalPurchaseAmount || 0,
+                        lastPurchaseDate: customerAggregate?.lastPurchaseDate || "",
                     };
 
-                    Array.from(customerMap).forEach(
+                    Array.from(customerMap as Map<number, keyof Customer>).forEach(
                         ([index, targetColumnName]) => {
                             if (
                                 targetColumnName !== "name" &&
                                 targetColumnName !== "totalPurchaseAmount" &&
                                 targetColumnName !== "lastPurchaseDate"
                             ) {
-                                customer[targetColumnName] = row.values[index];
+                                const val = (row.values as ExcelJS.CellValue[])[index];
+                                if ((val && typeof val === "string") || typeof val === "number") {
+                                    //@ts-expect-error "val" can be "never" case is being ignored
+                                    customer[targetColumnName] = val;
+                                }
                             }
                         },
                     );

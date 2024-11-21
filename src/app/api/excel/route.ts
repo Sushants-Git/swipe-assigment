@@ -10,78 +10,12 @@ type Row =
       };
 
 export const POST = async (req: Request) => {
-    const {
-        headerRow,
-        randomRows,
-    }: { headerRow: Row | null; randomRows: Row[] } = await req.json();
+    const { headerRow, randomRows }: { headerRow: Row | null; randomRows: Row[] } = await req.json();
 
     try {
         try {
             const mapping = await getMappingFromAI(headerRow, randomRows);
-            const mapping2 = {
-                mapping: {
-                    Invoices: [
-                        {
-                            sourceColumnName: "Serial Number",
-                            targetColumnName: "serialNumber",
-                        },
-                        {
-                            sourceColumnName: "Party Name",
-                            targetColumnName: "customerName",
-                        },
-                        {
-                            sourceColumnName: "Product Name",
-                            targetColumnName: "productName",
-                        },
-                        { sourceColumnName: "Qty", targetColumnName: "qty" },
-                        {
-                            sourceColumnName: "Tax (%)",
-                            targetColumnName: "tax",
-                        },
-                        {
-                            sourceColumnName: "Item Total Amount",
-                            targetColumnName: "totalAmount",
-                        },
-                        {
-                            sourceColumnName: "Invoice Date",
-                            targetColumnName: "date",
-                        },
-                    ],
-                    Customers: [
-                        {
-                            sourceColumnName: "Party Name",
-                            targetColumnName: "name",
-                        },
-                        {
-                            sourceColumnName: "Phone Number",
-                            targetColumnName: "phoneNumber",
-                        },
-                    ],
-                    Products: [
-                        {
-                            sourceColumnName: "Product Name",
-                            targetColumnName: "name",
-                        },
-                        {
-                            sourceColumnName: "Qty",
-                            targetColumnName: "quantity",
-                        },
-                        {
-                            sourceColumnName: "Price with Tax",
-                            targetColumnName: "priceWithTax",
-                        },
-                        {
-                            sourceColumnName: "Tax (%)",
-                            targetColumnName: "tax",
-                        },
-                        {
-                            sourceColumnName: "Serial Number",
-                            targetColumnName: "serialNumber",
-                        },
-                    ],
-                },
-            };
-            // const mapping = {
+            // const mapping2 = {
             //     mapping: {
             //         Invoices: [
             //             {
@@ -93,16 +27,21 @@ export const POST = async (req: Request) => {
             //                 targetColumnName: "customerName",
             //             },
             //             {
-            //                 sourceColumnName: "Total Amount",
+            //                 sourceColumnName: "Product Name",
+            //                 targetColumnName: "productName",
+            //             },
+            //             { sourceColumnName: "Qty", targetColumnName: "qty" },
+            //             {
+            //                 sourceColumnName: "Tax (%)",
+            //                 targetColumnName: "tax",
+            //             },
+            //             {
+            //                 sourceColumnName: "Item Total Amount",
             //                 targetColumnName: "totalAmount",
             //             },
             //             {
-            //                 sourceColumnName: "Date",
+            //                 sourceColumnName: "Invoice Date",
             //                 targetColumnName: "date",
-            //             },
-            //             {
-            //                 sourceColumnName: "Tax Amount",
-            //                 targetColumnName: "tax",
             //             },
             //         ],
             //         Customers: [
@@ -111,30 +50,30 @@ export const POST = async (req: Request) => {
             //                 targetColumnName: "name",
             //             },
             //             {
-            //                 sourceColumnName: "Total Amount",
-            //                 targetColumnName: "totalPurchaseAmount",
-            //             },
-            //             {
-            //                 sourceColumnName: "Date",
-            //                 targetColumnName: "lastPurchaseDate",
+            //                 sourceColumnName: "Phone Number",
+            //                 targetColumnName: "phoneNumber",
             //             },
             //         ],
             //         Products: [
             //             {
-            //                 sourceColumnName: "Party Company Name",
+            //                 sourceColumnName: "Product Name",
             //                 targetColumnName: "name",
+            //             },
+            //             {
+            //                 sourceColumnName: "Qty",
+            //                 targetColumnName: "quantity",
+            //             },
+            //             {
+            //                 sourceColumnName: "Price with Tax",
+            //                 targetColumnName: "priceWithTax",
+            //             },
+            //             {
+            //                 sourceColumnName: "Tax (%)",
+            //                 targetColumnName: "tax",
             //             },
             //             {
             //                 sourceColumnName: "Serial Number",
             //                 targetColumnName: "serialNumber",
-            //             },
-            //             {
-            //                 sourceColumnName: "Net Amount",
-            //                 targetColumnName: "priceWithTax",
-            //             },
-            //             {
-            //                 sourceColumnName: "Tax Amount",
-            //                 targetColumnName: "tax",
             //             },
             //         ],
             //     },
@@ -265,86 +204,3 @@ JSON:
 function removeBackticksAndJson(input: string) {
     return input.replace(/`/g, "").replace(/json/gi, "");
 }
-
-// function getRandomRows(
-//     wb: ExcelJS.Workbook,
-//     start: number,
-//     end: number,
-//     howMany: number,
-// ): ExcelJS.Row[] {
-//     const selectedRows: ExcelJS.Row[] = [];
-
-//     wb.eachSheet((sheet) => {
-//         let firstNonEmptyRowIndex = start;
-//         for (let i = start; i < end; i++) {
-//             const row = sheet.getRow(i);
-//             if (row.cellCount > 0) {
-//                 firstNonEmptyRowIndex = i;
-//                 selectedRows.push(row);
-//                 break;
-//             }
-//         }
-
-//         const totalAvailableRows = end - firstNonEmptyRowIndex;
-//         const interval = Math.floor(totalAvailableRows / howMany);
-
-//         for (let i = 1; i < howMany; i++) {
-//             const rowIndex = firstNonEmptyRowIndex + interval * i;
-//             const row = sheet.getRow(rowIndex);
-//             if (row.cellCount > 0) {
-//                 selectedRows.push(row);
-//             }
-//         }
-//     });
-
-//     return selectedRows;
-// }
-
-// function getSheetDetails(wb: ExcelJS.Workbook): {
-//     headerRow: Row | null;
-//     headerRowNumber: number;
-//     gapAt: number;
-// } {
-//     let headerRow: Row | null = null;
-//     let headerRowNumber = -1;
-//     let headerFound = false;
-
-//     let gapAt = -1;
-//     let foundGap = false;
-
-//     let val = null;
-//     let rightBehindVal: number | null = null;
-
-//     wb.eachSheet((sheet) => {
-//         sheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
-//             if (!headerFound) {
-//                 headerRow = row.values;
-//                 headerRowNumber = rowNumber;
-//                 headerFound = true;
-//             }
-
-//             if (!foundGap) {
-//                 val = rowNumber;
-
-//                 if (val && rightBehindVal) {
-//                     if (val - rightBehindVal !== 1) {
-//                         gapAt = rightBehindVal + 1;
-//                         foundGap = true;
-//                     }
-//                 }
-
-//                 rightBehindVal = val;
-//             }
-//         });
-
-//         if (gapAt === -1) {
-//             gapAt = sheet.rowCount;
-//         }
-
-//         if (headerRowNumber === -1) {
-//             headerRowNumber = 1;
-//         }
-//     });
-
-//     return { headerRow, headerRowNumber, gapAt };
-// }
