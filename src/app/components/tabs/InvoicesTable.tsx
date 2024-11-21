@@ -2,36 +2,17 @@ import {
     Table,
     TableHeader,
     TableBody,
-    TableHead,
     TableRow,
     TableCell,
 } from "@/components/ui/table";
-
-export interface Invoice {
-    id: number;
-    serialNumber: string;
-    customerName: string;
-    productName: string;
-    qty: number;
-    tax: number;
-    totalAmount: number;
-    date: string;
-}
+import { Invoice, TableHeaders } from "./TableHeaders";
 
 export const InvoicesTable = ({ invoices }: { invoices: Invoice[] }) => {
     return (
         <div className="overflow-x-auto">
             <Table>
                 <TableHeader>
-                    <TableRow>
-                        <TableHead>Serial Number</TableHead>
-                        <TableHead>Customer Name</TableHead>
-                        <TableHead>Product Name</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead>Tax (%)</TableHead>
-                        <TableHead>Total Amount</TableHead>
-                        <TableHead>Date</TableHead>
-                    </TableRow>
+                    <TableHeaders title="Invoices" />
                 </TableHeader>
                 <TableBody>
                     {invoices.map((invoice) => (
@@ -39,10 +20,20 @@ export const InvoicesTable = ({ invoices }: { invoices: Invoice[] }) => {
                             <TableCell>{invoice.serialNumber}</TableCell>
                             <TableCell>{invoice.customerName}</TableCell>
                             <TableCell>{invoice.productName}</TableCell>
-                            <TableCell>{invoice.qty}</TableCell>
-                            <TableCell>{invoice.tax.toFixed(2)}</TableCell>
                             <TableCell>
-                                ₹{invoice.totalAmount.toFixed(2)}
+                                {Number(invoice?.qty)
+                                    ? Number(invoice?.qty)?.toFixed(2)
+                                    : invoice?.qty}
+                            </TableCell>
+                            <TableCell>
+                                {Number(invoice?.tax)
+                                    ? Number(invoice?.tax)?.toFixed(2)
+                                    : invoice?.tax}
+                            </TableCell>
+                            <TableCell>
+                                {Number(invoice?.totalAmount)
+                                    ? Number(invoice?.totalAmount)?.toFixed(2)
+                                    : invoice?.totalAmount}
                             </TableCell>
                             <TableCell>{invoice.date}</TableCell>
                         </TableRow>

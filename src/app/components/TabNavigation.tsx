@@ -110,10 +110,11 @@ export const TabNavigation = ({
     );
 };
 
-const TableHeader = ({ uuid }: {uuid: string}) => {
+const TableHeader = ({ uuid }: { uuid?: string }) => {
     const [copied, setCopied] = React.useState(false);
 
     const copyToClipboard = () => {
+        if (!uuid) return;
         navigator.clipboard.writeText(uuid);
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
@@ -123,7 +124,7 @@ const TableHeader = ({ uuid }: {uuid: string}) => {
         <div className="flex items-center space-x-2 mb-6">
             <h3 className="text-lg font-medium text-muted-foreground">ID:</h3>
             <code className="text-lg font-medium text-foreground">
-                {uuid.slice(0, 8)}..
+                {uuid && uuid.slice(0, 8)}..
             </code>
             <Button
                 onClick={copyToClipboard}

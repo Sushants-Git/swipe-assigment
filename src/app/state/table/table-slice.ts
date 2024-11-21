@@ -1,10 +1,8 @@
+import { Customer, Invoice, Product } from "@/app/components/tabs/TableHeaders";
 import { createSlice } from "@reduxjs/toolkit";
-import { Customer } from "@/app/components/tabs/CustomersTable";
-import { Invoice } from "@/app/components/tabs/InvoicesTable";
-import { Product } from "@/app/components/tabs/ProductsTable";
 
-interface tableState {
-    uuid: string;
+export interface tableState {
+    uuid?: string;
     invoices: Invoice[];
     products: Product[];
     customers: Customer[];
@@ -195,7 +193,7 @@ const initialState: tableState[] = [
 ];
 
 const tableSlice = createSlice({
-    name: "tabs",
+    name: "table",
     initialState,
     reducers: {},
     // reducers: {

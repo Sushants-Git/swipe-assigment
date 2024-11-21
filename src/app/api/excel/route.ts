@@ -3,116 +3,181 @@ import ExcelJS from "exceljs";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dedent from "dedent";
 
-type HeaderRow =
+type Row =
     | ExcelJS.CellValue[]
     | {
           [key: string]: ExcelJS.CellValue;
       };
 
 export const POST = async (req: Request) => {
-    const formData = await req.formData();
-
-    const file = formData.get("file") as File;
-    if (!file) {
-        return NextResponse.json(
-            { error: "No files received." },
-            { status: 400 },
-        );
-    }
-
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const {
+        headerRow,
+        randomRows,
+    }: { headerRow: Row | null; randomRows: Row[] } = await req.json();
 
     try {
-        const workbook = new ExcelJS.Workbook();
+        try {
+            const mapping = await getMappingFromAI(headerRow, randomRows);
+            const mapping2 = {
+                mapping: {
+                    Invoices: [
+                        {
+                            sourceColumnName: "Serial Number",
+                            targetColumnName: "serialNumber",
+                        },
+                        {
+                            sourceColumnName: "Party Name",
+                            targetColumnName: "customerName",
+                        },
+                        {
+                            sourceColumnName: "Product Name",
+                            targetColumnName: "productName",
+                        },
+                        { sourceColumnName: "Qty", targetColumnName: "qty" },
+                        {
+                            sourceColumnName: "Tax (%)",
+                            targetColumnName: "tax",
+                        },
+                        {
+                            sourceColumnName: "Item Total Amount",
+                            targetColumnName: "totalAmount",
+                        },
+                        {
+                            sourceColumnName: "Invoice Date",
+                            targetColumnName: "date",
+                        },
+                    ],
+                    Customers: [
+                        {
+                            sourceColumnName: "Party Name",
+                            targetColumnName: "name",
+                        },
+                        {
+                            sourceColumnName: "Phone Number",
+                            targetColumnName: "phoneNumber",
+                        },
+                    ],
+                    Products: [
+                        {
+                            sourceColumnName: "Product Name",
+                            targetColumnName: "name",
+                        },
+                        {
+                            sourceColumnName: "Qty",
+                            targetColumnName: "quantity",
+                        },
+                        {
+                            sourceColumnName: "Price with Tax",
+                            targetColumnName: "priceWithTax",
+                        },
+                        {
+                            sourceColumnName: "Tax (%)",
+                            targetColumnName: "tax",
+                        },
+                        {
+                            sourceColumnName: "Serial Number",
+                            targetColumnName: "serialNumber",
+                        },
+                    ],
+                },
+            };
+            // const mapping = {
+            //     mapping: {
+            //         Invoices: [
+            //             {
+            //                 sourceColumnName: "Serial Number",
+            //                 targetColumnName: "serialNumber",
+            //             },
+            //             {
+            //                 sourceColumnName: "Party Name",
+            //                 targetColumnName: "customerName",
+            //             },
+            //             {
+            //                 sourceColumnName: "Total Amount",
+            //                 targetColumnName: "totalAmount",
+            //             },
+            //             {
+            //                 sourceColumnName: "Date",
+            //                 targetColumnName: "date",
+            //             },
+            //             {
+            //                 sourceColumnName: "Tax Amount",
+            //                 targetColumnName: "tax",
+            //             },
+            //         ],
+            //         Customers: [
+            //             {
+            //                 sourceColumnName: "Party Name",
+            //                 targetColumnName: "name",
+            //             },
+            //             {
+            //                 sourceColumnName: "Total Amount",
+            //                 targetColumnName: "totalPurchaseAmount",
+            //             },
+            //             {
+            //                 sourceColumnName: "Date",
+            //                 targetColumnName: "lastPurchaseDate",
+            //             },
+            //         ],
+            //         Products: [
+            //             {
+            //                 sourceColumnName: "Party Company Name",
+            //                 targetColumnName: "name",
+            //             },
+            //             {
+            //                 sourceColumnName: "Serial Number",
+            //                 targetColumnName: "serialNumber",
+            //             },
+            //             {
+            //                 sourceColumnName: "Net Amount",
+            //                 targetColumnName: "priceWithTax",
+            //             },
+            //             {
+            //                 sourceColumnName: "Tax Amount",
+            //                 targetColumnName: "tax",
+            //             },
+            //         ],
+            //     },
+            // };
 
-        const wb = await workbook.xlsx.load(buffer);
+            const som = () => {
+                return new Promise((res) => {
+                    setTimeout(() => {
+                        res("lol");
+                    }, 2000);
+                });
+            };
 
-        const { headerRow, headerRowNumber, gapAt } = getSheetDetails(wb);
-        const randomRows = getRandomRows(wb, headerRowNumber + 1, gapAt, 3);
+            await som();
 
-        await getMappingFromAI(headerRow, randomRows);
-
-        return NextResponse.json({
-            Message: "Success",
-            status: 201,
-        });
+            return NextResponse.json(
+                {
+                    message: "Mapping retrieved successfully",
+                    status: 201,
+                    mapping: mapping.mapping,
+                },
+                { status: 201 },
+            );
+        } catch (error) {
+            console.log(`getMappingFromAI errored with -> ${error}`);
+            return NextResponse.json(
+                {
+                    error: "Failed to retrieve mapping from AI",
+                },
+                { status: 500 },
+            );
+        }
     } catch (error) {
         console.log("Error occured ", error);
         return NextResponse.json({ Message: "Failed", status: 500 });
     }
 };
 
-async function getMappingFromAI(
-    headerRow: HeaderRow | null,
-    randomRows: ExcelJS.Row[],
-) {
-    // const prompt = dedent`
-    // I have a input table with columns ${JSON.stringify(headerRow)} and here are some of it's rows \
-    // ${randomRows.map((row) => `${JSON.stringify(row.values)} \n`)}.
-
-    // I want to map this tables columns into three tables Invoices, Products and Customers columns. There schema is as follows :
-    // Invoice {
-    //     serialNumber: string;
-    //     customerName: string;
-    //     productName: string;
-    //     qty: number;
-    //     tax: number;
-    //     totalAmount: number;
-    //     date: string;
-    // }
-
-    // Customer {
-    //     name: string;
-    //     phoneNumber: number;
-    //     totalPurchaseAmount: number;
-    //     email: string;
-    //     lastPurchaseDate: string;
-    // }
-
-    // Product {
-    //     name: string;
-    //     quantity: number;
-    //     unitPrice: number;
-    //     tax: number;
-    //     priceWithTax: number;
-    //     discount: number;
-    //     serialNumber: string;
-    // }.
-
-    // respond only with a json object like
-    // "mapping": {
-    //      "Invoices": [
-    //        {
-    //          "sourceColumnName": ,
-    //           "targetColumnName",
-    //        },
-    //        ...remaining
-    //      ],
-    //      "Customers": [
-    //        {
-    //          "sourceColumnName": ,
-    //         "targetColumnName",
-    //        },
-    //        ...remaining
-    //      ],
-    //      "Products": [
-    //        {
-    //          "sourceColumnName": ,
-    //          "targetColumnName": ,
-    //        },
-    //        ...remaining
-    //      ]
-    // },
-    // that represents this mapping.
-
-    // It is not necessary that all columns will get mapped.
-    // do not include anything except the json ouptut not even '''json.
-    // `;
-
+async function getMappingFromAI(headerRow: Row | null, randomRows: Row[]) {
     const prompt = dedent`
 Given a source table with the following structure:
 - Headers: ${JSON.stringify(headerRow)} 
-- Sample data: ${randomRows.map((row) => `${JSON.stringify(row.values)} \n`)}
+- Sample data: \n${randomRows.map((row) => `${JSON.stringify(row)} \n`).join("")}
 
 Create a column mapping to transform this source data into the following target tables:
 
@@ -148,7 +213,7 @@ Create a column mapping to transform this source data into the following target 
    }
 
 Requirements:
-- Return only a JSON mapping object without any additional text or markdown
+- Return only a JSON mapping object without any additional text or markdown (like \`\`\`json)
 - Not all source columns need to be mapped
 - Each mapping should follow this structure:
   {
@@ -163,93 +228,123 @@ Requirements:
       "Products": [...]
     }
   }
-`;
 
-    console.log(prompt);
+Output in JSON format.
+
+Do not use markdown.
+
+DO NOT INCLUDE BACKTICKS IN THE RESPONSE
+
+JSON:
+
+`;
+    let mapping = null;
 
     if (process.env.GOOGLE_API_KEY) {
         const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const result = await model.generateContent(prompt);
-        console.log(result.response.text());
-        return NextResponse.json({
-            output: result.response.text(),
-        });
+        const res = result.response.text();
+
+        if (res.includes("json")) {
+            mapping = removeBackticksAndJson(res);
+        } else {
+            mapping = res;
+        }
     }
+
+    if (mapping) {
+        mapping = JSON.parse(mapping);
+        return mapping;
+    }
+
+    throw new Error("Unable to generate Mapping");
 }
 
-function getRandomRows(
-    wb: ExcelJS.Workbook,
-    start: number,
-    end: number,
-    howMany: number,
-): ExcelJS.Row[] {
-    const selectedRows: ExcelJS.Row[] = [];
-
-    wb.eachSheet((sheet) => {
-        let firstNonEmptyRowIndex = start;
-        for (let i = start; i < end; i++) {
-            const row = sheet.getRow(i);
-            if (row.cellCount > 0) {
-                firstNonEmptyRowIndex = i;
-                selectedRows.push(row);
-                break;
-            }
-        }
-
-        const totalAvailableRows = end - firstNonEmptyRowIndex;
-        const interval = Math.floor(totalAvailableRows / howMany);
-
-        for (let i = 1; i < howMany; i++) {
-            const rowIndex = firstNonEmptyRowIndex + interval * i;
-            const row = sheet.getRow(rowIndex);
-            if (row.cellCount > 0) {
-                selectedRows.push(row);
-            }
-        }
-    });
-
-    return selectedRows;
+function removeBackticksAndJson(input: string) {
+    return input.replace(/`/g, "").replace(/json/gi, "");
 }
 
-function getSheetDetails(wb: ExcelJS.Workbook): {
-    headerRow: HeaderRow | null;
-    headerRowNumber: number;
-    gapAt: number;
-} {
-    let headerRow: HeaderRow | null = null;
-    let headerRowNumber = -1;
-    let headerFound = false;
+// function getRandomRows(
+//     wb: ExcelJS.Workbook,
+//     start: number,
+//     end: number,
+//     howMany: number,
+// ): ExcelJS.Row[] {
+//     const selectedRows: ExcelJS.Row[] = [];
 
-    let gapAt = -1;
-    let foundGap = false;
+//     wb.eachSheet((sheet) => {
+//         let firstNonEmptyRowIndex = start;
+//         for (let i = start; i < end; i++) {
+//             const row = sheet.getRow(i);
+//             if (row.cellCount > 0) {
+//                 firstNonEmptyRowIndex = i;
+//                 selectedRows.push(row);
+//                 break;
+//             }
+//         }
 
-    let val = null;
-    let rightBehindVal: number | null = null;
+//         const totalAvailableRows = end - firstNonEmptyRowIndex;
+//         const interval = Math.floor(totalAvailableRows / howMany);
 
-    wb.eachSheet((sheet) => {
-        sheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
-            if (!headerFound) {
-                headerRow = row.values;
-                headerRowNumber = rowNumber;
-                headerFound = true;
-            }
+//         for (let i = 1; i < howMany; i++) {
+//             const rowIndex = firstNonEmptyRowIndex + interval * i;
+//             const row = sheet.getRow(rowIndex);
+//             if (row.cellCount > 0) {
+//                 selectedRows.push(row);
+//             }
+//         }
+//     });
 
-            if (!foundGap) {
-                val = rowNumber;
+//     return selectedRows;
+// }
 
-                if (val && rightBehindVal) {
-                    if (val - rightBehindVal !== 1) {
-                        gapAt = rightBehindVal + 1;
-                        foundGap = true;
-                    }
-                }
+// function getSheetDetails(wb: ExcelJS.Workbook): {
+//     headerRow: Row | null;
+//     headerRowNumber: number;
+//     gapAt: number;
+// } {
+//     let headerRow: Row | null = null;
+//     let headerRowNumber = -1;
+//     let headerFound = false;
 
-                rightBehindVal = val;
-            }
-        });
-    });
+//     let gapAt = -1;
+//     let foundGap = false;
 
-    return { headerRow, headerRowNumber, gapAt };
-}
+//     let val = null;
+//     let rightBehindVal: number | null = null;
+
+//     wb.eachSheet((sheet) => {
+//         sheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
+//             if (!headerFound) {
+//                 headerRow = row.values;
+//                 headerRowNumber = rowNumber;
+//                 headerFound = true;
+//             }
+
+//             if (!foundGap) {
+//                 val = rowNumber;
+
+//                 if (val && rightBehindVal) {
+//                     if (val - rightBehindVal !== 1) {
+//                         gapAt = rightBehindVal + 1;
+//                         foundGap = true;
+//                     }
+//                 }
+
+//                 rightBehindVal = val;
+//             }
+//         });
+
+//         if (gapAt === -1) {
+//             gapAt = sheet.rowCount;
+//         }
+
+//         if (headerRowNumber === -1) {
+//             headerRowNumber = 1;
+//         }
+//     });
+
+//     return { headerRow, headerRowNumber, gapAt };
+// }

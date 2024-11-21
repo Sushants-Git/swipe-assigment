@@ -1,3 +1,4 @@
+import React from "react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -8,19 +9,16 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { FileUp, AlertCircle } from "lucide-react";
+import { FileUp } from "lucide-react";
 
 export const FileUploader = ({
+    children,
     handleFileUpload,
     fileName,
-    fileUploadStatus,
-    extractData,
 }: {
+    children: React.ReactNode;
     handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
     fileName?: string;
-    fileUploadStatus: "idle" | "success" | "error";
-    extractData: () => void;
 }) => {
     return (
         <Card className="mb-8">
@@ -67,52 +65,43 @@ export const FileUploader = ({
                             </Button>
                         </div>
                     </div>
-                    <div className="flex gap-3">
-                        <Button
-                            type="submit"
-                            className="flex-shrink-0"
-                            onClick={extractData}
-                        >
-                            Extract Data
-                        </Button>
-                    </div>
+                    {children}
                 </div>
-                <FileUploadStatus status={fileUploadStatus} />
             </CardContent>
         </Card>
     );
 };
 
-const FileUploadStatus = ({
-    status,
-}: {
-    status: "idle" | "success" | "error";
-}) => {
-    if (!status || status === "idle") return null;
+// const FileUploadStatus = ({
+//     status,
+// }: {
+//     status: "idle" | "success" | "error";
+// }) => {
+//     if (!status || status === "idle") return null;
 
-    const statusConfig = {
-        success: {
-            className: "bg-green-100 border-green-500 text-green-800",
-            title: "Success",
-            description: "File uploaded successfully.",
-        },
-        error: {
-            className: "bg-red-100 border-red-500 text-red-800",
-            title: "Error",
-            description:
-                "There was an error uploading the file. Please try again.",
-        },
-    };
+//     const statusConfig = {
+//         success: {
+//             className: "bg-green-100 border-green-500 text-green-800",
+//             title: "Success",
+//             description: "File uploaded successfully.",
+//         },
+//         error: {
+//             className: "bg-red-100 border-red-500 text-red-800",
+//             title: "Error",
+//             description:
+//                 "There was an error uploading the file. Please try again.",
+//         },
+//     };
 
-    const config = statusConfig[status];
+//     const config = statusConfig[status];
 
-    if (!config) return null;
+//     if (!config) return null;
 
-    return (
-        <Alert className={`mt-4 ${config.className}`}>
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>{config.title}</AlertTitle>
-            <AlertDescription>{config.description}</AlertDescription>
-        </Alert>
-    );
-};
+//     return (
+//         <Alert className={`mt-4 ${config.className}`}>
+//             <AlertCircle className="h-4 w-4" />
+//             <AlertTitle>{config.title}</AlertTitle>
+//             <AlertDescription>{config.description}</AlertDescription>
+//         </Alert>
+//     );
+// };

@@ -2,32 +2,17 @@ import {
     Table,
     TableHeader,
     TableBody,
-    TableHead,
     TableRow,
     TableCell,
 } from "@/components/ui/table";
-
-export interface Customer {
-    id: number;
-    name: string;
-    phoneNumber: number;
-    totalPurchaseAmount: number;
-    email: string;
-    lastPurchaseDate: string;
-}
+import { Customer, TableHeaders } from "./TableHeaders";
 
 export const CustomersTable = ({ customers }: { customers: Customer[] }) => {
     return (
         <div className="overflow-x-auto">
             <Table>
                 <TableHeader>
-                    <TableRow>
-                        <TableHead>Customer Name</TableHead>
-                        <TableHead>Phone Number</TableHead>
-                        <TableHead>Total Purchase Amount</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Last Purchase Date</TableHead>
-                    </TableRow>
+                    <TableHeaders title="Customers" />
                 </TableHeader>
                 <TableBody>
                     {customers.map((customer) => (
@@ -35,7 +20,11 @@ export const CustomersTable = ({ customers }: { customers: Customer[] }) => {
                             <TableCell>{customer.name}</TableCell>
                             <TableCell>{customer.phoneNumber}</TableCell>
                             <TableCell>
-                                ₹{customer.totalPurchaseAmount.toFixed(2)}
+                                {Number(customer.totalPurchaseAmount)
+                                    ? Number(
+                                          customer.totalPurchaseAmount,
+                                      ).toFixed(2)
+                                    : customer.totalPurchaseAmount}
                             </TableCell>
                             <TableCell>{customer.email}</TableCell>
                             <TableCell>{customer.lastPurchaseDate}</TableCell>

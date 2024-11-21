@@ -2,50 +2,48 @@ import {
     Table,
     TableHeader,
     TableBody,
-    TableHead,
     TableRow,
     TableCell,
 } from "@/components/ui/table";
-
-export interface Product {
-    id: number;
-    name: string;
-    quantity: number;
-    unitPrice: number;
-    tax: number;
-    priceWithTax: number;
-    discount: number;
-    serialNumber: string;
-}
+import { Product, TableHeaders } from "./TableHeaders";
 
 export const ProductsTable = ({ products }: { products: Product[] }) => {
     return (
         <div className="overflow-x-auto">
             <Table>
                 <TableHeader>
-                    <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead>Unit Price</TableHead>
-                        <TableHead>Tax (%)</TableHead>
-                        <TableHead>Price with Tax</TableHead>
-                        <TableHead>Discount</TableHead>
-                        <TableHead>Serial Number</TableHead>
-                    </TableRow>
+                    <TableHeaders title="Products" />
                 </TableHeader>
                 <TableBody>
                     {products.map((product) => (
                         <TableRow key={product.id}>
                             <TableCell>{product.name}</TableCell>
-                            <TableCell>{product.quantity}</TableCell>
                             <TableCell>
-                                {product.unitPrice.toFixed(2)}
+                                {Number(product?.quantity)
+                                    ? Number(product?.quantity)?.toFixed(2)
+                                    : product?.quantity}
                             </TableCell>
-                            <TableCell>${product.tax.toFixed(2)}</TableCell>
                             <TableCell>
-                                ₹{product.priceWithTax.toFixed(2)}
+                                {Number(product?.unitPrice)
+                                    ? Number(product?.unitPrice)?.toFixed(2)
+                                    : product?.unitPrice}
                             </TableCell>
-                            <TableCell>{product.discount}%</TableCell>
+                            <TableCell>
+                                {Number(product?.tax)
+                                    ? Number(product?.tax)?.toFixed(2)
+                                    : product?.tax}
+                            </TableCell>
+                            <TableCell>
+                                {Number(product?.priceWithTax)
+                                    ? Number(product?.priceWithTax)?.toFixed(2)
+                                    : product?.priceWithTax}
+                            </TableCell>
+                            <TableCell>
+                                {Number(product?.discount)
+                                    ? Number(product?.discount)?.toFixed(2)
+                                    : product?.discount}
+                                %
+                            </TableCell>
                             <TableCell>{product.serialNumber}</TableCell>
                         </TableRow>
                     ))}
