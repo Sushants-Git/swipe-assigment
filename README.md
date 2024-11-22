@@ -1,3 +1,16 @@
+## Processing Excel files
+
+![image](https://github.com/user-attachments/assets/d426abd9-d561-426f-aa64-0d21c196ab2a)
+
+> [!NOTE] 
+> We are not sending the whole Excel file to the backend, since getting the whole Excel file processed by gemini can use up a lot of tokens and it has been seen that longer the context given to ai more mistakes it commits.
+
+My Approach :
+- The end goal is being able to map the excel sheet columns with our table columns (eg. the input table can have a column called "Party Name" and our table has a column called "Customer Name", we should be able to map these both.)
+1. We extract the column names from the excel sheet. (which is usually the first row of a excel sheet, same goes for the given test cases).
+2. 
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
