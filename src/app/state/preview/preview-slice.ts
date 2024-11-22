@@ -15,8 +15,8 @@ const initialState: PreviewState = {
     customers: [],
 };
 
-const tableSlice = createSlice({
-    name: "table",
+const previewSlice = createSlice({
+    name: "preview",
     initialState,
     reducers: {
         setAllData: (
@@ -68,9 +68,7 @@ const tableSlice = createSlice({
 
             switch (type) {
                 case "invoice":
-                    const invoiceIndex = state.invoices.findIndex(
-                        (inv) => inv.id === id,
-                    );
+                    const invoiceIndex = state.invoices.findIndex((inv) => inv.id === id);
                     if (invoiceIndex !== -1) {
                         state.invoices[invoiceIndex] = {
                             ...state.invoices[invoiceIndex],
@@ -80,9 +78,7 @@ const tableSlice = createSlice({
                     break;
 
                 case "product":
-                    const productIndex = state.products.findIndex(
-                        (prod) => prod.id === id,
-                    );
+                    const productIndex = state.products.findIndex((prod) => prod.id === id);
                     if (productIndex !== -1) {
                         state.products[productIndex] = {
                             ...state.products[productIndex],
@@ -92,9 +88,7 @@ const tableSlice = createSlice({
                     break;
 
                 case "customer":
-                    const customerIndex = state.customers.findIndex(
-                        (cust) => cust.id === id,
-                    );
+                    const customerIndex = state.customers.findIndex((cust) => cust.id === id);
                     if (customerIndex !== -1) {
                         state.customers[customerIndex] = {
                             ...state.customers[customerIndex],
@@ -109,6 +103,6 @@ const tableSlice = createSlice({
     },
 });
 
-export const { resetState, setAllData, editItemById } = tableSlice.actions;
+export const { resetState, setAllData, editItemById } = previewSlice.actions;
 
-export default tableSlice.reducer;
+export default previewSlice.reducer;

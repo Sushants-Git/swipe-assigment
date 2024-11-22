@@ -29,7 +29,11 @@ export const DataPreview = ({
 }) => {
     const [itemIndex, setItemIndex] = React.useState(0);
 
-    if (tables === null && isLoading === false) return children;
+    const isTableEmpty = tables
+        ? tables.invoices.length === 0 && tables.products.length === 0 && tables.customers.length === 0
+        : true;
+
+    if (isTableEmpty && isLoading === false) return children;
 
     const items = [
         { title: "Invoices", icon: FileText, data: tables?.invoices },
