@@ -1,6 +1,5 @@
 import { Table, TableHeader, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { Customer, TableHeaders } from "../tabs/TableHeaders";
-
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/state/store";
 import { Input } from "@/components/ui/input";
@@ -21,6 +20,8 @@ export const CustomersPreview = ({ customers }: { customers: Customer[] }) => {
         key: string;
     } | null>(null);
 
+    const [localCustomers, setLocalCustomers] = React.useState<Customer[]>(customers);
+
     const renderCell = (
         id: number,
         key: string,
@@ -29,18 +30,40 @@ export const CustomersPreview = ({ customers }: { customers: Customer[] }) => {
     ) => {
         const isEditing = editingCell?.id === id && editingCell?.key === key;
         const isEmpty = value === "" || value === null || value === undefined;
-        let isNumber = typeof value === "number";
+        let isNumber =
+            typeof value === "number" || (!isNaN(Number(value)) && typeof value !== "boolean");
+
         if (ignoreNumberCheck) {
             isNumber = false;
         }
+
+        const handleOnBlur = () => {
+            dispatch(
+                editItemById({
+                    type: "customer",
+                    id,
+                    updates: {
+                        [key]: localCustomers.find((cust) => cust.id === id)?.[key as keyof Customer],
+                    },
+                }),
+            );
+            setEditingCell(null);
+        };
+
+        const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const newLocalCustomers = localCustomers.map((customer) =>
+                customer.id === id ? { ...customer, [key]: e.target.value } : customer,
+            );
+            setLocalCustomers(newLocalCustomers);
+        };
 
         if (isEditing) {
             return (
                 <Input
                     type="text"
                     value={value ?? ""}
-                    onChange={(e) => handleCellEdit(id, key, e.target.value)}
-                    onBlur={() => setEditingCell(null)}
+                    onChange={handleOnChange}
+                    onBlur={handleOnBlur}
                     autoFocus
                     className="w-full border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                 />
@@ -55,28 +78,18 @@ export const CustomersPreview = ({ customers }: { customers: Customer[] }) => {
                 transition={{ duration: 0.2 }}
                 onClick={() => setEditingCell({ id, key })}
                 className={`
-          group relative cursor-pointer 
-          p-2 rounded-md
-          border border-border hover:border-primary
-          hover:bg-primary hover:text-primary-foreground
-          transition-colors duration-300
-          flex items-center justify-between
-          ${isEmpty ? "italic text-muted-foreground" : ""}
-        `}
+                    group relative cursor-pointer 
+                    p-2 rounded-md
+                    border border-border hover:border-primary
+                    hover:bg-primary hover:text-primary-foreground
+                    transition-colors duration-300
+                    flex items-center justify-between
+                    ${isEmpty ? "italic text-muted-foreground" : ""}
+                `}
             >
                 <span>{formattedValue}</span>
                 <EditIcon />
             </motion.div>
-        );
-    };
-
-    const handleCellEdit = (id: number, key: string, value: string) => {
-        dispatch(
-            editItemById({
-                type: "customer",
-                id,
-                updates: { [key]: value },
-            }),
         );
     };
 
@@ -86,7 +99,7 @@ export const CustomersPreview = ({ customers }: { customers: Customer[] }) => {
                 <TableHeaders title="Customers" />
             </TableHeader>
             <TableBody>
-                {customers.map((customer) => (
+                {localCustomers.map((customer) => (
                     <TableRow key={customer.id}>
                         <TableCell>{renderCell(customer.id, "name", customer.name)}</TableCell>
                         <TableCell>
@@ -98,9 +111,7 @@ export const CustomersPreview = ({ customers }: { customers: Customer[] }) => {
                                 : customer.totalPurchaseAmount}
                         </TableCell>
                         <TableCell>{renderCell(customer.id, "email", customer.email)}</TableCell>
-                        <TableCell>
-                            {renderCell(customer.id, "lastPurchaseDate", customer.lastPurchaseDate)}
-                        </TableCell>
+                        <TableCell>{customer.lastPurchaseDate}</TableCell>
                     </TableRow>
                 ))}
             </TableBody>

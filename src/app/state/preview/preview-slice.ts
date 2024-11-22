@@ -1,4 +1,6 @@
 import { Customer, Invoice, Product } from "@/app/components/tabs/TableHeaders";
+import { customerFill } from "@/app/utils/edittingFilling/customerFill";
+import fillProduct from "@/app/utils/initialFilling/fillProduct";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface PreviewState {
@@ -70,6 +72,14 @@ const previewSlice = createSlice({
                 case "invoice":
                     const invoiceIndex = state.invoices.findIndex((inv) => inv.id === id);
                     if (invoiceIndex !== -1) {
+                        const updatedInvoices = state.invoices.map((invoice, index) =>
+                            index === invoiceIndex ? { ...invoice, ...updates } : invoice,
+                        );
+
+                        state.customers = customerFill(state.customers, updatedInvoices);
+
+                        state.products = fillProduct(updatedInvoices);
+
                         state.invoices[invoiceIndex] = {
                             ...state.invoices[invoiceIndex],
                             ...updates,
@@ -80,6 +90,16 @@ const previewSlice = createSlice({
                 case "product":
                     const productIndex = state.products.findIndex((prod) => prod.id === id);
                     if (productIndex !== -1) {
+                        if ((updates as Product).name) {
+                            const updatedInvoice = state.invoices.map((invoice) => {
+                                if (invoice.productName === state.products[productIndex].name) {
+                                    return { ...invoice, productName: (updates as Product).name };
+                                }
+                                return invoice;
+                            });
+
+                            state.invoices = updatedInvoice;
+                        }
                         state.products[productIndex] = {
                             ...state.products[productIndex],
                             ...updates,
@@ -90,6 +110,16 @@ const previewSlice = createSlice({
                 case "customer":
                     const customerIndex = state.customers.findIndex((cust) => cust.id === id);
                     if (customerIndex !== -1) {
+                        if ((updates as Customer).name) {
+                            const updatedInvoice = state.invoices.map((invoice) => {
+                                if (invoice.customerName === state.customers[customerIndex].name) {
+                                    return { ...invoice, customerName: (updates as Customer).name };
+                                }
+                                return invoice;
+                            });
+
+                            state.invoices = updatedInvoice;
+                        }
                         state.customers[customerIndex] = {
                             ...state.customers[customerIndex],
                             ...updates,

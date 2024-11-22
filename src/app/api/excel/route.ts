@@ -14,70 +14,70 @@ export const POST = async (req: Request) => {
 
     try {
         try {
-            // const mapping = await getMappingFromAI(headerRow, randomRows);
-            const mapping = {
-                mapping: {
-                    Invoices: [
-                        {
-                            sourceColumnName: "Serial Number",
-                            targetColumnName: "serialNumber",
-                        },
-                        {
-                            sourceColumnName: "Party Name",
-                            targetColumnName: "customerName",
-                        },
-                        {
-                            sourceColumnName: "Product Name",
-                            targetColumnName: "productName",
-                        },
-                        { sourceColumnName: "Qty", targetColumnName: "qty" },
-                        {
-                            sourceColumnName: "Tax (%)",
-                            targetColumnName: "tax",
-                        },
-                        {
-                            sourceColumnName: "Item Total Amount",
-                            targetColumnName: "totalAmount",
-                        },
-                        {
-                            sourceColumnName: "Invoice Date",
-                            targetColumnName: "date",
-                        },
-                    ],
-                    Customers: [
-                        {
-                            sourceColumnName: "Party Name",
-                            targetColumnName: "name",
-                        },
-                        {
-                            sourceColumnName: "Phone Number",
-                            targetColumnName: "phoneNumber",
-                        },
-                    ],
-                    Products: [
-                        {
-                            sourceColumnName: "Product Name",
-                            targetColumnName: "name",
-                        },
-                        {
-                            sourceColumnName: "Qty",
-                            targetColumnName: "quantity",
-                        },
-                        {
-                            sourceColumnName: "Price with Tax",
-                            targetColumnName: "priceWithTax",
-                        },
-                        {
-                            sourceColumnName: "Tax (%)",
-                            targetColumnName: "tax",
-                        },
-                        {
-                            sourceColumnName: "Serial Number",
-                            targetColumnName: "serialNumber",
-                        },
-                    ],
-                },
-            };
+            const mapping = await getMappingFromAI(headerRow, randomRows);
+            // const mapping = {
+            //     mapping: {
+            //         Invoices: [
+            //             {
+            //                 sourceColumnName: "Serial Number",
+            //                 targetColumnName: "serialNumber",
+            //             },
+            //             {
+            //                 sourceColumnName: "Party Name",
+            //                 targetColumnName: "customerName",
+            //             },
+            //             {
+            //                 sourceColumnName: "Product Name",
+            //                 targetColumnName: "productName",
+            //             },
+            //             { sourceColumnName: "Qty", targetColumnName: "qty" },
+            //             {
+            //                 sourceColumnName: "Tax (%)",
+            //                 targetColumnName: "tax",
+            //             },
+            //             {
+            //                 sourceColumnName: "Item Total Amount",
+            //                 targetColumnName: "totalAmount",
+            //             },
+            //             {
+            //                 sourceColumnName: "Invoice Date",
+            //                 targetColumnName: "date",
+            //             },
+            //         ],
+            //         Customers: [
+            //             {
+            //                 sourceColumnName: "Party Name",
+            //                 targetColumnName: "name",
+            //             },
+            //             {
+            //                 sourceColumnName: "Phone Number",
+            //                 targetColumnName: "phoneNumber",
+            //             },
+            //         ],
+            //         Products: [
+            //             {
+            //                 sourceColumnName: "Product Name",
+            //                 targetColumnName: "name",
+            //             },
+            //             {
+            //                 sourceColumnName: "Qty",
+            //                 targetColumnName: "quantity",
+            //             },
+            //             {
+            //                 sourceColumnName: "Price with Tax",
+            //                 targetColumnName: "priceWithTax",
+            //             },
+            //             {
+            //                 sourceColumnName: "Tax (%)",
+            //                 targetColumnName: "tax",
+            //             },
+            //             {
+            //                 sourceColumnName: "Serial Number",
+            //                 targetColumnName: "serialNumber",
+            //             },
+            //         ],
+            //     },
+            // };
 
             const som = () => {
                 return new Promise((res) => {

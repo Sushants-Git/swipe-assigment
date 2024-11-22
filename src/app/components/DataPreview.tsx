@@ -9,10 +9,12 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2, FileText, Package, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { tableState } from "../state/table/table-slice";
+import { setData, tableState } from "../state/table/table-slice";
 import { InvoicesPreview } from "./preview/InvoicesPreview";
 import { CustomersPreview } from "./preview/CustomersPreview";
 import { ProductsPreview } from "./preview/ProductsPreview";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../state/store";
 
 export const DataPreview = ({
     children,
@@ -29,8 +31,12 @@ export const DataPreview = ({
 }) => {
     const [itemIndex, setItemIndex] = React.useState(0);
 
+    const dispatch = useDispatch<AppDispatch>();
+
     const isTableEmpty = tables
-        ? tables.invoices.length === 0 && tables.products.length === 0 && tables.customers.length === 0
+        ? tables?.invoices?.length === 0 &&
+          tables?.products?.length === 0 &&
+          tables?.customers?.length === 0
         : true;
 
     if (isTableEmpty && isLoading === false) return children;
@@ -87,6 +93,21 @@ export const DataPreview = ({
                                 </Button>
                             ))}
                         </div>
+                        <Button
+                            className="mt-2 ml-auto w-max"
+                            onClick={() =>
+                                dispatch(
+                                    setData({
+                                        uuid: tables?.uuid,
+                                        invoices: tables?.invoices,
+                                        customers: tables?.customers,
+                                        products: tables?.products,
+                                    }),
+                                )
+                            }
+                        >
+                            Save
+                        </Button>
                     </>
                 )}
             </DialogContent>

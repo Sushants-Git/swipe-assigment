@@ -21,19 +21,41 @@ export const ProductsPreview = ({ products }: { products: Product[] }) => {
         key: string;
     } | null>(null);
 
+    const [localProducts, setLocalProducts] = React.useState<Product[]>(products);
+
     const renderCell = (id: number, key: string, value?: string | number) => {
         const isEditing = editingCell?.id === id && editingCell?.key === key;
         const isEmpty = value === "" || value === null || value === undefined;
         const isNumber =
             typeof value === "number" || (!isNaN(Number(value)) && typeof value !== "boolean");
 
+        const handleOnBlur = () => {
+            dispatch(
+                editItemById({
+                    type: "product",
+                    id,
+                    updates: {
+                        [key]: localProducts.find((pro) => pro.id === id)?.[key as keyof Product],
+                    },
+                }),
+            );
+            setEditingCell(null);
+        };
+
+        const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const newLocalInvoices = localProducts.map((product) =>
+                product.id === id ? { ...product, [key]: e.target.value } : product,
+            );
+            setLocalProducts(newLocalInvoices);
+        };
+
         if (isEditing) {
             return (
                 <Input
                     type="text"
                     value={value ?? ""}
-                    onChange={(e) => handleCellEdit(id, key, e.target.value)}
-                    onBlur={() => setEditingCell(null)}
+                    onChange={handleOnChange}
+                    onBlur={handleOnBlur}
                     autoFocus
                     className="w-full border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                 />
@@ -63,23 +85,13 @@ export const ProductsPreview = ({ products }: { products: Product[] }) => {
         );
     };
 
-    const handleCellEdit = (id: number, key: string, value: string) => {
-        dispatch(
-            editItemById({
-                type: "product",
-                id,
-                updates: { [key]: value },
-            }),
-        );
-    };
-
     return (
         <Table>
             <TableHeader>
                 <TableHeaders title="Products" />
             </TableHeader>
             <TableBody>
-                {products.map((product) => (
+                {localProducts.map((product) => (
                     <TableRow key={product.id}>
                         <TableCell>{renderCell(product.id, "name", product.name)}</TableCell>
                         <TableCell>
@@ -87,7 +99,11 @@ export const ProductsPreview = ({ products }: { products: Product[] }) => {
                                 ? Number(product?.quantity)?.toFixed(2)
                                 : product?.quantity}
                         </TableCell>
-                        <TableCell>{renderCell(product.id, "unitPrice", product.unitPrice)}</TableCell>
+                        <TableCell>
+                            {Number(product?.unitPrice)
+                                ? Number(product?.unitPrice)?.toFixed(2)
+                                : product?.unitPrice}
+                        </TableCell>
                         <TableCell>
                             {Number(product?.tax) ? Number(product?.tax)?.toFixed(2) : product?.tax}
                         </TableCell>

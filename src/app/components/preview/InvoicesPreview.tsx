@@ -14,24 +14,45 @@ const EditIcon = () => (
 
 export const InvoicesPreview = ({ invoices }: { invoices: Invoice[] }) => {
     const dispatch = useDispatch<AppDispatch>();
-
     const [editingCell, setEditingCell] = React.useState<{
         id: number;
         key: string;
     } | null>(null);
+    const [localInvoices, setLocalInvoices] = React.useState<Invoice[]>(invoices);
 
     const renderCell = (id: number, key: string, value?: string | number) => {
         const isEditing = editingCell?.id === id && editingCell?.key === key;
         const isEmpty = value === "" || value === null || value === undefined;
-        const isNumber = typeof value === "number";
+        const isNumber =
+            typeof value === "number" || (!isNaN(Number(value)) && typeof value !== "boolean");
+
+        const handleOnBlur = () => {
+            dispatch(
+                editItemById({
+                    type: "invoice",
+                    id,
+                    updates: {
+                        [key]: localInvoices.find((inv) => inv.id === id)?.[key as keyof Invoice],
+                    },
+                }),
+            );
+            setEditingCell(null);
+        };
+
+        const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const newLocalInvoices = localInvoices.map((invoice) =>
+                invoice.id === id ? { ...invoice, [key]: e.target.value } : invoice,
+            );
+            setLocalInvoices(newLocalInvoices);
+        };
 
         if (isEditing) {
             return (
                 <Input
                     type="text"
                     value={value ?? ""}
-                    onChange={(e) => handleCellEdit(id, key, e.target.value)}
-                    onBlur={() => setEditingCell(null)}
+                    onChange={handleOnChange}
+                    onBlur={handleOnBlur}
                     autoFocus
                     className="w-full border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                 />
@@ -39,35 +60,24 @@ export const InvoicesPreview = ({ invoices }: { invoices: Invoice[] }) => {
         }
 
         const formattedValue = isNumber ? Number(value).toFixed(2) : (value ?? "");
-
         return (
             <motion.div
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
                 onClick={() => setEditingCell({ id, key })}
                 className={`
-          group relative cursor-pointer 
-          p-2 rounded-md
-          border border-border hover:border-primary
-          hover:bg-primary hover:text-primary-foreground
-          transition-colors duration-300
-          flex items-center justify-between
-          ${isEmpty ? "italic text-muted-foreground" : ""}
-        `}
+                    group relative cursor-pointer 
+                    p-2 rounded-md
+                    border border-border hover:border-primary
+                    hover:bg-primary hover:text-primary-foreground
+                    transition-colors duration-300
+                    flex items-center justify-between
+                    ${isEmpty ? "italic text-muted-foreground" : ""}
+                `}
             >
                 <span>{formattedValue}</span>
                 <EditIcon />
             </motion.div>
-        );
-    };
-
-    const handleCellEdit = (id: number, key: string, value: string) => {
-        dispatch(
-            editItemById({
-                type: "invoice",
-                id,
-                updates: { [key]: value },
-            }),
         );
     };
 
@@ -77,7 +87,7 @@ export const InvoicesPreview = ({ invoices }: { invoices: Invoice[] }) => {
                 <TableHeaders title="Invoices" />
             </TableHeader>
             <TableBody>
-                {invoices.map((invoice) => (
+                {localInvoices.map((invoice) => (
                     <TableRow key={invoice.id}>
                         <TableCell>
                             {renderCell(invoice.id, "serialNumber", invoice.serialNumber)}

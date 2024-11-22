@@ -17,19 +17,18 @@ import { TabNavigation } from "./components/TabNavigation";
 import { DataPreview } from "./components/DataPreview";
 import { Button } from "@/components/ui/button";
 
-import isExcelFile from "./utils/utils/isExcelFile";
-import getSheetDetails from "./utils/utils/getSheetDetails";
-import getRandomRows from "./utils/utils/getRandomRows";
-import fillInvoice from "./utils/utils/filledInvoice";
-import fillCustomer from "./utils/utils/fillCustomer";
-import transformInvoiceData from "./utils/utils/transformLogic";
+import isExcelFile from "./utils/isExcelFile";
+import getSheetDetails from "./utils/getSheetDetails";
+import getRandomRows from "./utils/getRandomRows";
 
-type Mapping = {
+import processDataWithMapping from "./utils/initialFilling/processDataWithMapping";
+
+export type Mapping = {
     sourceColumnName: string;
     targetColumnName: string;
 };
 
-type DataMappings = {
+export type DataMappings = {
     Invoices: Mapping[];
     Customers: Mapping[];
     Products: Mapping[];
@@ -105,14 +104,24 @@ function App() {
         const hash = hashHeaderRow(headerRow);
 
         const storedMapping = localStorage.getItem(hash);
+
+        setDialogOpen(true);
+
         if (storedMapping) {
             console.log("Mapping found in localStorage.");
             const mapping = JSON.parse(storedMapping) as DataMappings;
-            processDataWithMapping(headerRow, wb, mapping, headerRowNumber, gapAt);
+
+            const { invoices, customers, products } = processDataWithMapping(
+                headerRow,
+                wb,
+                mapping,
+                headerRowNumber,
+                gapAt,
+            );
+
+            dispatch(setAllData({ uuid: uuidv4(), invoices, products, customers }));
             return;
         }
-
-        setDialogOpen(true);
 
         const randomRows = getRandomRows(wb, headerRowNumber + 1, gapAt, 3);
         dispatch(changeHeader(headerRow));
@@ -123,42 +132,18 @@ function App() {
                 onSuccess: (data) => {
                     if (data?.mapping) {
                         localStorage.setItem(hash, JSON.stringify(data.mapping));
-                        processDataWithMapping(headerRow, wb, data.mapping, headerRowNumber, gapAt);
+                        const { invoices, customers, products } = processDataWithMapping(
+                            headerRow,
+                            wb,
+                            data.mapping,
+                            headerRowNumber,
+                            gapAt,
+                        );
+                        dispatch(setAllData({ uuid: uuidv4(), invoices, products, customers }));
                     }
                 },
             },
         );
-    };
-
-    const processDataWithMapping = async (
-        headerRow: Row | null,
-        workbook: ExcelJS.Workbook,
-        mapping: DataMappings,
-        headerRowNumber: number,
-        gapAt: number,
-    ) => {
-        const invoiceMap = new Map<number, string>();
-        const customerMap = new Map<number, string>();
-
-        mapping.Invoices.forEach((mapping) =>
-            invoiceMap.set(
-                (headerRow as (string | null)[]).indexOf(mapping.sourceColumnName),
-                mapping.targetColumnName,
-            ),
-        );
-
-        mapping.Customers.forEach((mapping) =>
-            customerMap.set(
-                (headerRow as (string | null)[]).indexOf(mapping.sourceColumnName),
-                mapping.targetColumnName,
-            ),
-        );
-
-        const invoices = fillInvoice(workbook, invoiceMap, headerRowNumber + 1, gapAt);
-        const customers = fillCustomer(workbook, customerMap, invoices, headerRowNumber + 1, gapAt);
-        const { products } = transformInvoiceData(invoices);
-
-        dispatch(setAllData({ uuid: uuidv4(), invoices, products, customers }));
     };
 
     return (

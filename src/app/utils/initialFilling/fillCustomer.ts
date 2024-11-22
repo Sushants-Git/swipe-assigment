@@ -43,13 +43,10 @@ export default function fillCustomer(
     });
 
     wb.eachSheet((sheet) => {
+        const customerNameIndex =
+            Array.from(customerMap.entries()).find(([, targetName]) => targetName === "name")?.[0] ?? -1;
         sheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
             if (rowNumber > start && rowNumber < gapAt) {
-                const customerNameIndex =
-                    Array.from(customerMap.entries()).find(
-                        ([, targetName]) => targetName === "name",
-                    )?.[0] ?? -1;
-
                 const customerName = (row.values as ExcelJS.CellValue[])[customerNameIndex] as string;
 
                 if (!customerName) return;

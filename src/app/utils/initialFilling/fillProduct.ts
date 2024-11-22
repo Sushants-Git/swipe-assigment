@@ -1,10 +1,6 @@
 import { Invoice, Product } from "@/app/components/tabs/TableHeaders";
 
-interface TransformationResult {
-    products: Product[];
-}
-
-function transformInvoiceData(invoices: Invoice[]): TransformationResult {
+function fillProduct(invoices: Invoice[]): Product[] {
     const productMap = new Map<string, Product>();
 
     invoices.forEach((invoice) => {
@@ -30,9 +26,7 @@ function transformInvoiceData(invoices: Invoice[]): TransformationResult {
         }
     });
 
-    return {
-        products: Array.from(productMap.values()),
-    };
+    return Array.from(productMap.values());
 }
 
-export default transformInvoiceData;
+export default fillProduct;

@@ -26,9 +26,11 @@ export const TabNavigation = ({
                 }}
             >
                 <TableHeader uuid={table.uuid} />
-                {type === "invoices" && <InvoicesTable invoices={table.invoices} />}
-                {type === "products" && <ProductsTable products={table.products} />}
-                {type === "customers" && <CustomersTable customers={table.customers} />}
+                {type === "invoices" && table.invoices && <InvoicesTable invoices={table.invoices} />}
+                {type === "products" && table.products && <ProductsTable products={table.products} />}
+                {type === "customers" && table.customers && (
+                    <CustomersTable customers={table.customers} />
+                )}
             </div>
         ));
 

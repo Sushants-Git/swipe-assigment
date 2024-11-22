@@ -1,11 +1,11 @@
 import { Customer, Invoice, Product } from "@/app/components/tabs/TableHeaders";
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface tableState {
     uuid?: string;
-    invoices: Invoice[];
-    products: Product[];
-    customers: Customer[];
+    invoices?: Invoice[];
+    products?: Product[];
+    customers?: Customer[];
 }
 
 const products: Product[] = [
@@ -189,41 +189,23 @@ const initialState: tableState[] = [
 const tableSlice = createSlice({
     name: "table",
     initialState,
-    reducers: {},
-    // reducers: {
-    //     increment: (state) => {
-    //         state.value += 1;
-    //     },
-    //     decrement: (state) => {
-    //         state.value -= 1;
-    //     },
-    //     increment_by_amount: (state, action: PayloadAction<number>) => {
-    //         state.value += action.payload;
-    //     },
-    // },
-    // extraReducers: (builder) => {
-    //     builder
-    //         .addCase(incrementAsync.pending, () => {
-    //             console.log("incrementAsync.pending");
-    //         })
-    //         .addCase(incrementAsync.fulfilled, (state, action) => {
-    //             console.log("incrementAsync.fulfilled");
-    //             state.value += action.payload;
-    //         });
-    // },
+    reducers: {
+        setData: (
+            state,
+            action: PayloadAction<{
+                invoices?: Invoice[];
+                products?: Product[];
+                customers?: Customer[];
+                uuid?: string;
+            }>,
+        ) => {
+            const { invoices, products, customers, uuid } = action.payload;
+
+            return [{ uuid, products, customers, invoices }, ...state];
+        },
+    },
 });
 
-// export const incrementAsync = createAsyncThunk(
-//     "counter/incrementAsync",
-//     async (amount: number) => {
-//         await new Promise((res) => setTimeout(res, 1000));
-//         return amount;
-//     },
-// );
-
-// export const { increment, decrement, increment_by_amount } =
-//     counterSlice.actions;
-
-export const {} = tableSlice.actions;
+export const { setData } = tableSlice.actions;
 
 export default tableSlice.reducer;
