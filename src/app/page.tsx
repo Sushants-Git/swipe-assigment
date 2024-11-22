@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useCallback, useEffect, useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent } from "react";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import { QueryClient, QueryClientProvider, useMutation, useQueryClient } from "@tanstack/react-query";
 import ExcelJS from "exceljs";
 import { v4 as uuidv4 } from "uuid";
+import crypto from "crypto";
 
 import { store, AppDispatch, RootState } from "./state/store";
 import { changeHeader } from "./state/table/header-row-slice";
@@ -53,10 +54,14 @@ function App() {
     const [file, setFile] = useState<File | null>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
 
-    const header = useSelector((state: RootState) => state.header.headerRow);
     const extractedData = useSelector((state: RootState) => state.preview);
     const dispatch = useDispatch<AppDispatch>();
     const queryClient = useQueryClient();
+
+    const hashHeaderRow = (headerRow: Row | null): string => {
+        const headerString = JSON.stringify(headerRow || []);
+        return crypto.createHash("sha256").update(headerString).digest("hex");
+    };
 
     const extractExcel = useMutation({
         mutationFn: async ({
@@ -92,56 +97,69 @@ function App() {
     const extractData = async () => {
         if (!file || !isExcelFile(file)) return;
 
-        setDialogOpen(true);
-
         const workbook = new ExcelJS.Workbook();
         const buffer = Buffer.from(await file.arrayBuffer());
         const wb = await workbook.xlsx.load(buffer);
 
         const { headerRow, headerRowNumber, gapAt } = getSheetDetails(wb);
-        const randomRows = getRandomRows(wb, headerRowNumber + 1, gapAt, 3);
+        const hash = hashHeaderRow(headerRow);
 
+        const storedMapping = localStorage.getItem(hash);
+        if (storedMapping) {
+            console.log("Mapping found in localStorage.");
+            const mapping = JSON.parse(storedMapping) as DataMappings;
+            processDataWithMapping(headerRow, wb, mapping, headerRowNumber, gapAt);
+            return;
+        }
+
+        setDialogOpen(true);
+
+        const randomRows = getRandomRows(wb, headerRowNumber + 1, gapAt, 3);
         dispatch(changeHeader(headerRow));
-        extractExcel.mutate({ headerRow, randomRows });
+
+        extractExcel.mutate(
+            { headerRow, randomRows },
+            {
+                onSuccess: (data) => {
+                    if (data?.mapping) {
+                        localStorage.setItem(hash, JSON.stringify(data.mapping));
+                        processDataWithMapping(headerRow, wb, data.mapping, headerRowNumber, gapAt);
+                    }
+                },
+            },
+        );
     };
 
-    const getSourceColumnIndex = useCallback(
-        (sourceColumnName: string): number =>
-            header ? (header as (string | null)[]).indexOf(sourceColumnName) : -1,
-        [header],
-    );
-
-    useEffect(() => {
-        if (!extractExcel?.data?.mapping) return;
-
+    const processDataWithMapping = async (
+        headerRow: Row | null,
+        workbook: ExcelJS.Workbook,
+        mapping: DataMappings,
+        headerRowNumber: number,
+        gapAt: number,
+    ) => {
         const invoiceMap = new Map<number, string>();
         const customerMap = new Map<number, string>();
 
-        (extractExcel.data.mapping as DataMappings).Invoices.forEach((mapping) =>
-            invoiceMap.set(getSourceColumnIndex(mapping.sourceColumnName), mapping.targetColumnName),
+        mapping.Invoices.forEach((mapping) =>
+            invoiceMap.set(
+                (headerRow as (string | null)[]).indexOf(mapping.sourceColumnName),
+                mapping.targetColumnName,
+            ),
         );
 
-        (extractExcel.data.mapping as DataMappings).Customers.forEach((mapping) =>
-            customerMap.set(getSourceColumnIndex(mapping.sourceColumnName), mapping.targetColumnName),
+        mapping.Customers.forEach((mapping) =>
+            customerMap.set(
+                (headerRow as (string | null)[]).indexOf(mapping.sourceColumnName),
+                mapping.targetColumnName,
+            ),
         );
 
-        const fillData = async () => {
-            if (!file) return;
+        const invoices = fillInvoice(workbook, invoiceMap, headerRowNumber + 1, gapAt);
+        const customers = fillCustomer(workbook, customerMap, invoices, headerRowNumber + 1, gapAt);
+        const { products } = transformInvoiceData(invoices);
 
-            const workbook = new ExcelJS.Workbook();
-            const buffer = Buffer.from(await file.arrayBuffer());
-            const wb = await workbook.xlsx.load(buffer);
-
-            const { headerRowNumber, gapAt } = getSheetDetails(wb);
-            const invoices = fillInvoice(wb, invoiceMap, headerRowNumber + 1, gapAt);
-            const customers = fillCustomer(wb, customerMap, invoices, headerRowNumber + 1, gapAt);
-            const { products } = transformInvoiceData(invoices);
-
-            dispatch(setAllData({ uuid: uuidv4(), invoices, products, customers }));
-        };
-
-        fillData();
-    }, [extractExcel?.data?.mapping, file, getSourceColumnIndex, dispatch]);
+        dispatch(setAllData({ uuid: uuidv4(), invoices, products, customers }));
+    };
 
     return (
         <Layout>
