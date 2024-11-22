@@ -1,10 +1,4 @@
-import {
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableCell,
-} from "@/components/ui/table";
+import { Table, TableHeader, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { Invoice, TableHeaders } from "../tabs/TableHeaders";
 import React from "react";
 import { Input } from "@/components/ui/input";
@@ -14,6 +8,10 @@ import { editItemById } from "@/app/state/preview/preview-slice";
 import { motion } from "motion/react";
 import { Pencil } from "lucide-react";
 
+const EditIcon = () => (
+    <Pencil className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+);
+
 export const InvoicesPreview = ({ invoices }: { invoices: Invoice[] }) => {
     const dispatch = useDispatch<AppDispatch>();
 
@@ -22,14 +20,10 @@ export const InvoicesPreview = ({ invoices }: { invoices: Invoice[] }) => {
         key: string;
     } | null>(null);
 
-    const renderCell = (
-        id: number,
-        key: string,
-        value?: string | number,
-        isNumber?: boolean,
-    ) => {
+    const renderCell = (id: number, key: string, value?: string | number) => {
         const isEditing = editingCell?.id === id && editingCell?.key === key;
         const isEmpty = value === "" || value === null || value === undefined;
+        const isNumber = typeof value === "number";
 
         if (isEditing) {
             return (
@@ -39,47 +33,30 @@ export const InvoicesPreview = ({ invoices }: { invoices: Invoice[] }) => {
                     onChange={(e) => handleCellEdit(id, key, e.target.value)}
                     onBlur={() => setEditingCell(null)}
                     autoFocus
-                    className="w-full border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
+                    className="w-full border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                 />
             );
         }
 
+        const formattedValue = isNumber ? Number(value).toFixed(2) : (value ?? "");
+
         return (
             <motion.div
-                whileHover={{
-                    scale: 1.02,
-                }}
+                whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
-                onClick={() => setEditingCell({ id: id, key })}
+                onClick={() => setEditingCell({ id, key })}
                 className={`
-                    border
-                    border-gray-300
-                    hover:border-foreground
-                    group relative cursor-pointer 
-                    hover:bg-foreground
-                    hover:text-background
-                    p-2 rounded 
-                    ${isEmpty ? "text-gray-500" : ""}
-                    flex items-center justify-between
-                `}
+          group relative cursor-pointer 
+          p-2 rounded-md
+          border border-border hover:border-primary
+          hover:bg-primary hover:text-primary-foreground
+          transition-colors duration-300
+          flex items-center justify-between
+          ${isEmpty ? "italic text-muted-foreground" : ""}
+        `}
             >
-                <span className={isEmpty ? "italic" : ""}>
-                    {isNumber
-                        ? Number(value)
-                            ? Number(value)?.toFixed(2)
-                            : value
-                        : (value ?? "")}
-                </span>
-                <Pencil
-                    className="
-                        w-4 h-4 
-                        text-gray-400 
-                        opacity-0 
-                        group-hover:opacity-100 
-                        transition-opacity 
-                        duration-300
-                    "
-                />
+                <span>{formattedValue}</span>
+                <EditIcon />
             </motion.div>
         );
     };
@@ -103,43 +80,20 @@ export const InvoicesPreview = ({ invoices }: { invoices: Invoice[] }) => {
                 {invoices.map((invoice) => (
                     <TableRow key={invoice.id}>
                         <TableCell>
-                            {renderCell(
-                                invoice.id,
-                                "serialNumber",
-                                invoice.serialNumber,
-                            )}
+                            {renderCell(invoice.id, "serialNumber", invoice.serialNumber)}
                         </TableCell>
                         <TableCell>
-                            {renderCell(
-                                invoice.id,
-                                "customerName",
-                                invoice.customerName,
-                            )}
+                            {renderCell(invoice.id, "customerName", invoice.customerName)}
                         </TableCell>
                         <TableCell>
-                            {renderCell(
-                                invoice.id,
-                                "productName",
-                                invoice.productName,
-                            )}
+                            {renderCell(invoice.id, "productName", invoice.productName)}
                         </TableCell>
+                        <TableCell>{renderCell(invoice.id, "qty", invoice?.qty, true)}</TableCell>
+                        <TableCell>{renderCell(invoice.id, "tax", invoice?.tax, true)}</TableCell>
                         <TableCell>
-                            {renderCell(invoice.id, "qty", invoice?.qty, true)}
+                            {renderCell(invoice.id, "totalAmount", invoice?.totalAmount, true)}
                         </TableCell>
-                        <TableCell>
-                            {renderCell(invoice.id, "tax", invoice?.tax, true)}
-                        </TableCell>
-                        <TableCell>
-                            {renderCell(
-                                invoice.id,
-                                "totalAmount",
-                                invoice?.totalAmount,
-                                true,
-                            )}
-                        </TableCell>
-                        <TableCell>
-                            {renderCell(invoice.id, "date", invoice.date)}
-                        </TableCell>
+                        <TableCell>{renderCell(invoice.id, "date", invoice.date)}</TableCell>
                     </TableRow>
                 ))}
             </TableBody>

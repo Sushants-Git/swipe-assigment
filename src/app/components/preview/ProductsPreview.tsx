@@ -1,10 +1,4 @@
-import {
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableCell,
-} from "@/components/ui/table";
+import { Table, TableHeader, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { Product, TableHeaders } from "../tabs/TableHeaders";
 
 import { useDispatch } from "react-redux";
@@ -15,6 +9,10 @@ import { Pencil } from "lucide-react";
 import { editItemById } from "@/app/state/preview/preview-slice";
 import React from "react";
 
+const EditIcon = () => (
+    <Pencil className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+);
+
 export const ProductsPreview = ({ products }: { products: Product[] }) => {
     const dispatch = useDispatch<AppDispatch>();
 
@@ -23,14 +21,10 @@ export const ProductsPreview = ({ products }: { products: Product[] }) => {
         key: string;
     } | null>(null);
 
-    const renderCell = (
-        id: number,
-        key: string,
-        value?: string | number,
-        isNumber?: boolean,
-    ) => {
+    const renderCell = (id: number, key: string, value?: string | number) => {
         const isEditing = editingCell?.id === id && editingCell?.key === key;
         const isEmpty = value === "" || value === null || value === undefined;
+        const isNumber = typeof value === "number";
 
         if (isEditing) {
             return (
@@ -40,47 +34,30 @@ export const ProductsPreview = ({ products }: { products: Product[] }) => {
                     onChange={(e) => handleCellEdit(id, key, e.target.value)}
                     onBlur={() => setEditingCell(null)}
                     autoFocus
-                    className="w-full border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
+                    className="w-full border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                 />
             );
         }
 
+        const formattedValue = isNumber ? Number(value).toFixed(2) : (value ?? "");
+
         return (
             <motion.div
-                whileHover={{
-                    scale: 1.02,
-                }}
+                whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
-                onClick={() => setEditingCell({ id: id, key })}
+                onClick={() => setEditingCell({ id, key })}
                 className={`
-                    border
-                    border-gray-300
-                    hover:border-foreground
-                    group relative cursor-pointer 
-                    hover:bg-foreground
-                    hover:text-background
-                    p-2 rounded 
-                    ${isEmpty ? "bg-foreground text-gray-500" : ""}
-                    flex items-center justify-between
-                `}
+          group relative cursor-pointer 
+          p-2 rounded-md
+          border border-border hover:border-primary
+          hover:bg-primary hover:text-primary-foreground
+          transition-colors duration-300
+          flex items-center justify-between
+          ${isEmpty ? "italic text-muted-foreground" : ""}
+        `}
             >
-                <span className={isEmpty ? "italic" : ""}>
-                    {isNumber
-                        ? Number(value)
-                            ? Number(value)?.toFixed(2)
-                            : value
-                        : (value ?? "")}
-                </span>
-                <Pencil
-                    className="
-                        w-4 h-4 
-                        text-gray-400 
-                        opacity-0 
-                        group-hover:opacity-100 
-                        transition-opacity 
-                        duration-300
-                    "
-                />
+                <span>{formattedValue}</span>
+                <EditIcon />
             </motion.div>
         );
     };
@@ -103,26 +80,17 @@ export const ProductsPreview = ({ products }: { products: Product[] }) => {
             <TableBody>
                 {products.map((product) => (
                     <TableRow key={product.id}>
-                        <TableCell>
-                            {renderCell(product.id, "name", product.name)}
-                        </TableCell>
+                        <TableCell>{renderCell(product.id, "name", product.name)}</TableCell>
                         <TableCell>
                             {Number(product?.quantity)
                                 ? Number(product?.quantity)?.toFixed(2)
                                 : product?.quantity}
                         </TableCell>
                         <TableCell>
-                            {renderCell(
-                                product.id,
-                                "unitPrice",
-                                product.unitPrice,
-                                true,
-                            )}
+                            {renderCell(product.id, "unitPrice", product.unitPrice, true)}
                         </TableCell>
                         <TableCell>
-                            {Number(product?.tax)
-                                ? Number(product?.tax)?.toFixed(2)
-                                : product?.tax}
+                            {Number(product?.tax) ? Number(product?.tax)?.toFixed(2) : product?.tax}
                         </TableCell>
                         <TableCell>
                             {Number(product?.priceWithTax)
