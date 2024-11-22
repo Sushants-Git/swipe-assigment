@@ -83,6 +83,9 @@ function App() {
 
     const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target.files?.[0];
+        if (selectedFile) {
+            extractExcel.reset();
+        }
         setFile(selectedFile || null);
     };
 
