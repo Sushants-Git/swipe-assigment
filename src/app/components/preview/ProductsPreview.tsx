@@ -24,7 +24,8 @@ export const ProductsPreview = ({ products }: { products: Product[] }) => {
     const renderCell = (id: number, key: string, value?: string | number) => {
         const isEditing = editingCell?.id === id && editingCell?.key === key;
         const isEmpty = value === "" || value === null || value === undefined;
-        const isNumber = typeof value === "number";
+        const isNumber =
+            typeof value === "number" || (!isNaN(Number(value)) && typeof value !== "boolean");
 
         if (isEditing) {
             return (
@@ -86,9 +87,7 @@ export const ProductsPreview = ({ products }: { products: Product[] }) => {
                                 ? Number(product?.quantity)?.toFixed(2)
                                 : product?.quantity}
                         </TableCell>
-                        <TableCell>
-                            {renderCell(product.id, "unitPrice", product.unitPrice, true)}
-                        </TableCell>
+                        <TableCell>{renderCell(product.id, "unitPrice", product.unitPrice)}</TableCell>
                         <TableCell>
                             {Number(product?.tax) ? Number(product?.tax)?.toFixed(2) : product?.tax}
                         </TableCell>
