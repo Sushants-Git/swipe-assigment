@@ -88,10 +88,10 @@ export const InvoicesPreview = ({ invoices }: { invoices: Invoice[] }) => {
                         <TableCell>
                             {renderCell(invoice.id, "productName", invoice.productName)}
                         </TableCell>
-                        <TableCell>{renderCell(invoice.id, "qty", invoice?.qty, true)}</TableCell>
-                        <TableCell>{renderCell(invoice.id, "tax", invoice?.tax, true)}</TableCell>
+                        <TableCell>{renderCell(invoice.id, "qty", invoice?.qty)}</TableCell>
+                        <TableCell>{renderCell(invoice.id, "tax", invoice?.tax)}</TableCell>
                         <TableCell>
-                            {renderCell(invoice.id, "totalAmount", invoice?.totalAmount, true)}
+                            {renderCell(invoice.id, "totalAmount", invoice?.totalAmount)}
                         </TableCell>
                         <TableCell>{renderCell(invoice.id, "date", invoice.date)}</TableCell>
                     </TableRow>

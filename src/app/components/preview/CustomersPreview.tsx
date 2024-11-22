@@ -21,10 +21,18 @@ export const CustomersPreview = ({ customers }: { customers: Customer[] }) => {
         key: string;
     } | null>(null);
 
-    const renderCell = (id: number, key: string, value?: string | number) => {
+    const renderCell = (
+        id: number,
+        key: string,
+        value?: string | number,
+        ignoreNumberCheck?: boolean,
+    ) => {
         const isEditing = editingCell?.id === id && editingCell?.key === key;
         const isEmpty = value === "" || value === null || value === undefined;
-        const isNumber = typeof value === "number";
+        let isNumber = typeof value === "number";
+        if (ignoreNumberCheck) {
+            isNumber = false;
+        }
 
         if (isEditing) {
             return (
@@ -82,7 +90,7 @@ export const CustomersPreview = ({ customers }: { customers: Customer[] }) => {
                     <TableRow key={customer.id}>
                         <TableCell>{renderCell(customer.id, "name", customer.name)}</TableCell>
                         <TableCell>
-                            {renderCell(customer.id, "phoneNumber", customer.phoneNumber)}
+                            {renderCell(customer.id, "phoneNumber", customer.phoneNumber, true)}
                         </TableCell>
                         <TableCell>
                             {Number(customer.totalPurchaseAmount)
