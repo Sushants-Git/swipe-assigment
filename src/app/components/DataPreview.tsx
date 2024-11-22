@@ -95,7 +95,7 @@ export const DataPreview = ({
                         </div>
                         <Button
                             className="mt-2 ml-auto w-max"
-                            onClick={() =>
+                            onClick={() => {
                                 dispatch(
                                     setData({
                                         uuid: tables?.uuid,
@@ -103,8 +103,9 @@ export const DataPreview = ({
                                         customers: tables?.customers,
                                         products: tables?.products,
                                     }),
-                                )
-                            }
+                                );
+                                setDialogOpen(false);
+                            }}
                         >
                             Save
                         </Button>
