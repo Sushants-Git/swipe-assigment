@@ -41,6 +41,7 @@ export const DataPreview = ({
         : true;
 
     if (isTableEmpty && isLoading === false) return children;
+    if (dialogOpen === false) return children;
 
     const items = [
         { title: "Invoices", icon: FileText, data: tables?.invoices },
