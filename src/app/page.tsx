@@ -16,12 +16,12 @@ import { TabNavigation } from "./components/TabNavigation";
 import { DataPreview } from "./components/DataPreview";
 import { Button } from "@/components/ui/button";
 
-import isExcelFile from "./utils/isExcelFile";
+import { isExcelFile, isImageFile, isPdfFile } from "./utils/isFile";
 import getSheetDetails from "./utils/getSheetDetails";
 import getRandomRows from "./utils/getRandomRows";
 
 import processDataWithMapping from "./utils/initialFilling/processDataWithMapping";
-import { setIsTaxInPercentage } from "./state/tax/tax-slice";
+import { tableState } from "./state/table/table-slice";
 
 export type Mapping = {
     sourceColumnName: string;
@@ -86,16 +86,70 @@ function App() {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ["excel_route"] }),
     });
 
+    const extractPdf = useMutation({
+        mutationFn: async (type: "pdf" | "img") => {
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("type", type);
+
+            const res = await fetch("/api/pdf", {
+                method: "POST",
+                body: formData,
+            });
+
+            console.log(res);
+
+            return res.json();
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pdf_route"] }),
+    });
+
     const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target.files?.[0];
         if (selectedFile) {
             extractExcel.reset();
+            extractPdf.reset();
         }
         setFile(selectedFile || null);
     };
 
     const extractData = async () => {
-        if (!file || !isExcelFile(file)) return;
+        if (!file) return;
+
+        if (isExcelFile(file)) {
+            handleExcelFile();
+        } else if (isPdfFile(file)) {
+            handlePdfAndImageFile("pdf");
+        } else if (isImageFile(file)) {
+            handlePdfAndImageFile("img");
+        }
+    };
+
+    const handlePdfAndImageFile = async (type: "pdf" | "img") => {
+        setDialogOpen(true);
+        extractPdf.mutate(type, {
+            onSuccess: (data) => {
+                if (data?.res as tableState) {
+                    const { invoices, products, customers, isTaxInPercentage } = data.res as tableState;
+
+                    dispatch(
+                        setPreviewData({
+                            uuid: uuidv4(),
+                            invoices,
+                            products,
+                            customers,
+                            isTaxInPercentage,
+                        }),
+                    );
+                }
+            },
+        });
+    };
+
+    const handleExcelFile = async () => {
+        if (!file) return;
 
         const workbook = new ExcelJS.Workbook();
         const buffer = Buffer.from(await file.arrayBuffer());
@@ -120,7 +174,6 @@ function App() {
                 gapAt,
             );
 
-            dispatch(setIsTaxInPercentage((mapping as DataMappings)?.isTaxInPercentage));
             dispatch(
                 setPreviewData({
                     uuid: uuidv4(),
@@ -148,7 +201,6 @@ function App() {
                             headerRowNumber,
                             gapAt,
                         );
-                        dispatch(setIsTaxInPercentage((data.mapping as DataMappings).isTaxInPercentage));
                         dispatch(
                             setPreviewData({
                                 uuid: uuidv4(),
@@ -171,7 +223,7 @@ function App() {
                     dialogOpen={dialogOpen}
                     setDialogOpen={setDialogOpen}
                     tables={extractedData}
-                    isLoading={extractExcel.isPending}
+                    isLoading={extractExcel.isPending || extractPdf.isPending}
                 >
                     <Button onClick={extractData} className="flex-shrink-0">
                         Extract Data

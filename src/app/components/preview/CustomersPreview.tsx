@@ -35,7 +35,8 @@ export const CustomersPreview = ({ customers }: { customers: Customer[] }) => {
         const isEditing = editingCell?.id === id && editingCell?.key === key;
         const isEmpty = value === "" || value === null || value === undefined;
         let isNumber =
-            typeof value === "number" || (!isNaN(Number(value)) && typeof value !== "boolean");
+            typeof value === "number" ||
+            (value !== "" && !isNaN(Number(value)) && typeof value !== "boolean");
 
         if (ignoreNumberCheck) {
             isNumber = false;

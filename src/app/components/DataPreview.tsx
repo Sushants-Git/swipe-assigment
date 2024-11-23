@@ -13,8 +13,8 @@ import { setTableData, tableState } from "../state/table/table-slice";
 import { InvoicesPreview } from "./preview/InvoicesPreview";
 import { CustomersPreview } from "./preview/CustomersPreview";
 import { ProductsPreview } from "./preview/ProductsPreview";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../state/store";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../state/store";
 
 export const DataPreview = ({
     children,
@@ -32,7 +32,8 @@ export const DataPreview = ({
     const [itemIndex, setItemIndex] = React.useState(0);
 
     const dispatch = useDispatch<AppDispatch>();
-    const isTaxInPercentage = useSelector((state: RootState) => state.tax.isTaxInPercentage);
+
+    const isTaxInPercentage = tables?.isTaxInPercentage;
 
     const isTableEmpty = tables
         ? tables?.invoices?.length === 0 &&

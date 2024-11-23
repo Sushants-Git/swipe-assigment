@@ -37,7 +37,8 @@ export const ProductsPreview = ({
         const isEditing = editingCell?.id === id && editingCell?.key === key;
         const isEmpty = value === "" || value === null || value === undefined;
         const isNumber =
-            typeof value === "number" || (!isNaN(Number(value)) && typeof value !== "boolean");
+            typeof value === "number" ||
+            (value !== "" && !isNaN(Number(value)) && typeof value !== "boolean");
 
         const handleOnBlur = () => {
             dispatch(
