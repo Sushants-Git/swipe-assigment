@@ -1,6 +1,6 @@
 ## Swipe Assigment - Invoice Management System
 
-![image](https://github.com/user-attachments/assets/d90684cc-2b0a-4256-ba45-b7329a191ea8)
+![image](https://github.com/user-attachments/assets/e49e757c-1fab-4553-a068-09a786588bc9)
 ![image](https://github.com/user-attachments/assets/be26ed0a-e01f-4734-8a70-568fcdd903b4)
 
 ## Processing Excel files (route : `/api/excel`)
