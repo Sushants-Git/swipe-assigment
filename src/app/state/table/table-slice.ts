@@ -179,12 +179,6 @@ const initialState: tableState[] = [
         products: products,
         customers: customers,
     },
-    {
-        uuid: "4b8aa280-c1e0-48b8-ac2b-8c6209457b07",
-        invoices: invoices,
-        products: products,
-        customers: customers,
-    },
 ];
 
 const tableSlice = createSlice({
