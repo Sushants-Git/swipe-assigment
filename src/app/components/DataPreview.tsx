@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2, FileText, Package, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { setData, tableState } from "../state/table/table-slice";
+import { setTableData, tableState } from "../state/table/table-slice";
 import { InvoicesPreview } from "./preview/InvoicesPreview";
 import { CustomersPreview } from "./preview/CustomersPreview";
 import { ProductsPreview } from "./preview/ProductsPreview";
@@ -119,7 +119,7 @@ export const DataPreview = ({
                             className="mt-2 ml-auto w-max"
                             onClick={() => {
                                 dispatch(
-                                    setData({
+                                    setTableData({
                                         uuid: tables?.uuid,
                                         invoices: tables?.invoices,
                                         customers: tables?.customers,

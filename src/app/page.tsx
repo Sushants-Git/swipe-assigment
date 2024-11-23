@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 
 import { store, AppDispatch, RootState } from "./state/store";
-import { setAllData } from "./state/preview/preview-slice";
+import { setPreviewData } from "./state/preview/preview-slice";
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { FileUploader } from "./components/FileUploader";
@@ -112,8 +112,6 @@ function App() {
             console.log("Mapping found in localStorage.");
             const mapping = JSON.parse(storedMapping) as DataMappings;
 
-            dispatch(setIsTaxInPercentage((mapping as DataMappings)?.isTaxInPercentage));
-
             const { invoices, customers, products } = processDataWithMapping(
                 headerRow,
                 wb,
@@ -122,8 +120,9 @@ function App() {
                 gapAt,
             );
 
+            dispatch(setIsTaxInPercentage((mapping as DataMappings)?.isTaxInPercentage));
             dispatch(
-                setAllData({
+                setPreviewData({
                     uuid: uuidv4(),
                     invoices,
                     products,
@@ -151,7 +150,7 @@ function App() {
                         );
                         dispatch(setIsTaxInPercentage((data.mapping as DataMappings).isTaxInPercentage));
                         dispatch(
-                            setAllData({
+                            setPreviewData({
                                 uuid: uuidv4(),
                                 invoices,
                                 products,

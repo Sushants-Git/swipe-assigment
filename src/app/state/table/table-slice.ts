@@ -191,7 +191,7 @@ const tableSlice = createSlice({
     name: "table",
     initialState,
     reducers: {
-        setData: (state, action: PayloadAction<tableState>) => {
+        setTableData: (state, action: PayloadAction<tableState>) => {
             const { invoices, products, customers, uuid, isTaxInPercentage } = action.payload;
 
             return [{ uuid, products, customers, invoices, isTaxInPercentage }, ...state];
@@ -199,6 +199,6 @@ const tableSlice = createSlice({
     },
 });
 
-export const { setData } = tableSlice.actions;
+export const { setTableData } = tableSlice.actions;
 
 export default tableSlice.reducer;

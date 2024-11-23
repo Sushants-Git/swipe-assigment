@@ -22,7 +22,7 @@ const previewSlice = createSlice({
     name: "preview",
     initialState,
     reducers: {
-        setAllData: (
+        setPreviewData: (
             state,
             action: PayloadAction<{
                 invoices?: Invoice[];
@@ -139,6 +139,6 @@ const previewSlice = createSlice({
     },
 });
 
-export const { resetState, setAllData, editItemById } = previewSlice.actions;
+export const { resetState, setPreviewData, editItemById } = previewSlice.actions;
 
 export default previewSlice.reducer;
