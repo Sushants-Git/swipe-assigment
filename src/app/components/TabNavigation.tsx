@@ -4,9 +4,9 @@ import { RootState } from "../state/store";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Check, Copy, FileText, Package, Users } from "lucide-react";
-import { InvoicesTable } from "./tabs/InvoicesTable";
-import { ProductsTable } from "./tabs/ProductsTable";
-import { CustomersTable } from "./tabs/CustomersTable";
+import { InvoicesTable } from "./table/InvoicesTable";
+import { ProductsTable } from "./table/ProductsTable";
+import { CustomersTable } from "./table/CustomersTable";
 
 export const TabNavigation = ({
     activeTab,

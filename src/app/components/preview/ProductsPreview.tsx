@@ -1,5 +1,5 @@
 import { Table, TableHeader, TableBody, TableRow, TableCell } from "@/components/ui/table";
-import { Product, TableHeaders } from "../tabs/TableHeaders";
+import { Product, TableHeaders } from "../TableHeaders";
 
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/state/store";

@@ -1,5 +1,5 @@
 import { Table, TableHeader, TableBody, TableRow, TableCell } from "@/components/ui/table";
-import { Customer, TableHeaders } from "./TableHeaders";
+import { Customer, TableHeaders } from "../TableHeaders";
 
 const formatNumber = (value?: string | number) => {
     const num = Number(value);
