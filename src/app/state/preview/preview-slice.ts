@@ -8,6 +8,7 @@ export interface PreviewState {
     invoices: Invoice[];
     products: Product[];
     customers: Customer[];
+    isTaxInPercentage?: boolean;
 }
 
 const initialState: PreviewState = {
@@ -28,12 +29,17 @@ const previewSlice = createSlice({
                 products?: Product[];
                 customers?: Customer[];
                 uuid?: string;
+                isTaxInPercentage?: boolean;
             }>,
         ) => {
-            const { invoices, products, customers, uuid } = action.payload;
+            const { invoices, products, customers, uuid, isTaxInPercentage } = action.payload;
 
             if (uuid) {
                 state.uuid = uuid;
+            }
+
+            if (isTaxInPercentage) {
+                state.isTaxInPercentage = isTaxInPercentage;
             }
 
             if (invoices) {

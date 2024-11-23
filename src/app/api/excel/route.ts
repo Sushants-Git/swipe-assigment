@@ -164,7 +164,8 @@ Requirements:
         }
       ],
       "Customers": [...],
-      "Products": [...]
+      "Products": [...],
+      "isTaxInPercentage" : boolean
     }
   }
 

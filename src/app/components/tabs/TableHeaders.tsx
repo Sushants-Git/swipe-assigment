@@ -30,7 +30,13 @@ export interface Product {
     discount?: string | number;
 }
 
-export const TableHeaders = ({ title }: { title: string }) => {
+export const TableHeaders = ({
+    title,
+    isTaxInPercentage,
+}: {
+    title: string;
+    isTaxInPercentage?: boolean;
+}) => {
     switch (title) {
         case "Invoices":
             return (
@@ -39,7 +45,7 @@ export const TableHeaders = ({ title }: { title: string }) => {
                     <TableHead>Customer Name</TableHead>
                     <TableHead>Product Name</TableHead>
                     <TableHead>Quantity</TableHead>
-                    <TableHead>Tax (%)</TableHead>
+                    <TableHead>Tax ({`${isTaxInPercentage ? "%" : "₹"}`})</TableHead>
                     <TableHead>Total Amount (₹)</TableHead>
                     <TableHead>Date</TableHead>
                 </TableRow>
@@ -50,7 +56,7 @@ export const TableHeaders = ({ title }: { title: string }) => {
                     <TableHead>Name</TableHead>
                     <TableHead>Quantity</TableHead>
                     <TableHead>Unit Price</TableHead>
-                    <TableHead>Tax (%)</TableHead>
+                    <TableHead>Tax ({`${isTaxInPercentage ? "%" : "₹"}`})</TableHead>
                     <TableHead>Price with Tax (₹)</TableHead>
                     <TableHead>Discount</TableHead>
                 </TableRow>

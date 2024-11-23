@@ -13,8 +13,8 @@ import { setData, tableState } from "../state/table/table-slice";
 import { InvoicesPreview } from "./preview/InvoicesPreview";
 import { CustomersPreview } from "./preview/CustomersPreview";
 import { ProductsPreview } from "./preview/ProductsPreview";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../state/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../state/store";
 
 export const DataPreview = ({
     children,
@@ -32,6 +32,7 @@ export const DataPreview = ({
     const [itemIndex, setItemIndex] = React.useState(0);
 
     const dispatch = useDispatch<AppDispatch>();
+    const isTaxInPercentage = useSelector((state: RootState) => state.tax.isTaxInPercentage);
 
     const isTableEmpty = tables
         ? tables?.invoices?.length === 0 &&
@@ -50,13 +51,34 @@ export const DataPreview = ({
     const renderTable = () => {
         switch (itemIndex) {
             case 0:
-                return tables?.invoices && <InvoicesPreview invoices={tables?.invoices} />;
+                return (
+                    tables?.invoices && (
+                        <InvoicesPreview
+                            invoices={tables?.invoices}
+                            isTaxInPercentage={isTaxInPercentage}
+                        />
+                    )
+                );
             case 1:
-                return tables?.products && <ProductsPreview products={tables?.products} />;
+                return (
+                    tables?.products && (
+                        <ProductsPreview
+                            products={tables?.products}
+                            isTaxInPercentage={isTaxInPercentage}
+                        />
+                    )
+                );
             case 2:
                 return tables?.customers && <CustomersPreview customers={tables?.customers} />;
             default:
-                return tables?.invoices && <InvoicesPreview invoices={tables?.invoices} />;
+                return (
+                    tables?.invoices && (
+                        <InvoicesPreview
+                            invoices={tables?.invoices}
+                            isTaxInPercentage={isTaxInPercentage}
+                        />
+                    )
+                );
         }
     };
 
@@ -102,6 +124,7 @@ export const DataPreview = ({
                                         invoices: tables?.invoices,
                                         customers: tables?.customers,
                                         products: tables?.products,
+                                        isTaxInPercentage: tables?.isTaxInPercentage,
                                     }),
                                 );
                                 setDialogOpen(false);

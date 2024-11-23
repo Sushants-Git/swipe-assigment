@@ -22,6 +22,8 @@ import getSheetDetails from "./utils/getSheetDetails";
 import getRandomRows from "./utils/getRandomRows";
 
 import processDataWithMapping from "./utils/initialFilling/processDataWithMapping";
+import { setMapping } from "./state/mapping/mapping-slice";
+import { setIsTaxInPercentage } from "./state/tax/tax-slice";
 
 export type Mapping = {
     sourceColumnName: string;
@@ -32,6 +34,7 @@ export type DataMappings = {
     Invoices: Mapping[];
     Customers: Mapping[];
     Products: Mapping[];
+    isTaxInPercentage: boolean;
 };
 
 export type Row = ExcelJS.CellValue[] | { [key: string]: ExcelJS.CellValue };
@@ -111,6 +114,8 @@ function App() {
             console.log("Mapping found in localStorage.");
             const mapping = JSON.parse(storedMapping) as DataMappings;
 
+            dispatch(setIsTaxInPercentage((mapping as DataMappings)?.isTaxInPercentage));
+
             const { invoices, customers, products } = processDataWithMapping(
                 headerRow,
                 wb,
@@ -119,7 +124,15 @@ function App() {
                 gapAt,
             );
 
-            dispatch(setAllData({ uuid: uuidv4(), invoices, products, customers }));
+            dispatch(
+                setAllData({
+                    uuid: uuidv4(),
+                    invoices,
+                    products,
+                    customers,
+                    isTaxInPercentage: mapping.isTaxInPercentage,
+                }),
+            );
             return;
         }
 
@@ -139,7 +152,16 @@ function App() {
                             headerRowNumber,
                             gapAt,
                         );
-                        dispatch(setAllData({ uuid: uuidv4(), invoices, products, customers }));
+                        dispatch(setIsTaxInPercentage((data.mapping as DataMappings).isTaxInPercentage));
+                        dispatch(
+                            setAllData({
+                                uuid: uuidv4(),
+                                invoices,
+                                products,
+                                customers,
+                                isTaxInPercentage: data.mapping?.isTaxInPercentage,
+                            }),
+                        );
                     }
                 },
             },

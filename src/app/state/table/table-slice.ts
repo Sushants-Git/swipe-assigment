@@ -6,6 +6,7 @@ export interface tableState {
     invoices?: Invoice[];
     products?: Product[];
     customers?: Customer[];
+    isTaxInPercentage?: boolean;
 }
 
 const products: Product[] = [
@@ -190,18 +191,10 @@ const tableSlice = createSlice({
     name: "table",
     initialState,
     reducers: {
-        setData: (
-            state,
-            action: PayloadAction<{
-                invoices?: Invoice[];
-                products?: Product[];
-                customers?: Customer[];
-                uuid?: string;
-            }>,
-        ) => {
-            const { invoices, products, customers, uuid } = action.payload;
+        setData: (state, action: PayloadAction<tableState>) => {
+            const { invoices, products, customers, uuid, isTaxInPercentage } = action.payload;
 
-            return [{ uuid, products, customers, invoices }, ...state];
+            return [{ uuid, products, customers, invoices, isTaxInPercentage }, ...state];
         },
     },
 });

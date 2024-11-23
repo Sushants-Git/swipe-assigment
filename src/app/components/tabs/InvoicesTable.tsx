@@ -18,11 +18,17 @@ const InvoicesTableRow = ({ invoice }: { invoice: Invoice }) => (
     </TableRow>
 );
 
-export const InvoicesTable = ({ invoices }: { invoices: Invoice[] }) => (
+export const InvoicesTable = ({
+    invoices,
+    isTaxInPercentage,
+}: {
+    invoices: Invoice[];
+    isTaxInPercentage?: boolean;
+}) => (
     <div className="overflow-x-auto">
         <Table>
             <TableHeader>
-                <TableHeaders title="Invoices" />
+                <TableHeaders title="Invoices" isTaxInPercentage={isTaxInPercentage} />
             </TableHeader>
             <TableBody>
                 {invoices.map((invoice) => (

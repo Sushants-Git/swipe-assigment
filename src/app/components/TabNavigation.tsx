@@ -26,8 +26,18 @@ export const TabNavigation = ({
                 }}
             >
                 <TableHeader uuid={table.uuid} />
-                {type === "invoices" && table.invoices && <InvoicesTable invoices={table.invoices} />}
-                {type === "products" && table.products && <ProductsTable products={table.products} />}
+                {type === "invoices" && table.invoices && (
+                    <InvoicesTable
+                        invoices={table.invoices}
+                        isTaxInPercentage={table.isTaxInPercentage}
+                    />
+                )}
+                {type === "products" && table.products && (
+                    <ProductsTable
+                        products={table.products}
+                        isTaxInPercentage={table.isTaxInPercentage}
+                    />
+                )}
                 {type === "customers" && table.customers && (
                     <CustomersTable customers={table.customers} />
                 )}

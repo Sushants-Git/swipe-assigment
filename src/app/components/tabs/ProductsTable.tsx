@@ -17,11 +17,17 @@ const ProductsTableRow = ({ product }: { product: Product }) => (
     </TableRow>
 );
 
-export const ProductsTable = ({ products }: { products: Product[] }) => (
+export const ProductsTable = ({
+    products,
+    isTaxInPercentage,
+}: {
+    products: Product[];
+    isTaxInPercentage?: boolean;
+}) => (
     <div className="overflow-x-auto">
         <Table>
             <TableHeader>
-                <TableHeaders title="Products" />
+                <TableHeaders title="Products" isTaxInPercentage={isTaxInPercentage} />
             </TableHeader>
             <TableBody>
                 {products.map((product) => (

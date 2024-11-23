@@ -2,8 +2,8 @@ import { Table, TableHeader, TableBody, TableRow, TableCell } from "@/components
 import { Invoice, TableHeaders } from "../tabs/TableHeaders";
 import React from "react";
 import { Input } from "@/components/ui/input";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/app/state/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/app/state/store";
 import { editItemById } from "@/app/state/preview/preview-slice";
 import { motion } from "motion/react";
 import { Pencil } from "lucide-react";
@@ -12,8 +12,15 @@ const EditIcon = () => (
     <Pencil className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 );
 
-export const InvoicesPreview = ({ invoices }: { invoices: Invoice[] }) => {
+export const InvoicesPreview = ({
+    invoices,
+    isTaxInPercentage,
+}: {
+    invoices: Invoice[];
+    isTaxInPercentage?: boolean;
+}) => {
     const dispatch = useDispatch<AppDispatch>();
+
     const [editingCell, setEditingCell] = React.useState<{
         id: number;
         key: string;
@@ -84,7 +91,7 @@ export const InvoicesPreview = ({ invoices }: { invoices: Invoice[] }) => {
     return (
         <Table>
             <TableHeader>
-                <TableHeaders title="Invoices" />
+                <TableHeaders title="Invoices" isTaxInPercentage={isTaxInPercentage} />
             </TableHeader>
             <TableBody>
                 {localInvoices.map((invoice) => (

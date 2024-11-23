@@ -1,8 +1,8 @@
 import { Table, TableHeader, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { Product, TableHeaders } from "../tabs/TableHeaders";
 
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/app/state/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/app/state/store";
 import { Input } from "@/components/ui/input";
 import { motion } from "motion/react";
 import { Pencil } from "lucide-react";
@@ -13,7 +13,13 @@ const EditIcon = () => (
     <Pencil className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 );
 
-export const ProductsPreview = ({ products }: { products: Product[] }) => {
+export const ProductsPreview = ({
+    products,
+    isTaxInPercentage,
+}: {
+    products: Product[];
+    isTaxInPercentage?: boolean;
+}) => {
     const dispatch = useDispatch<AppDispatch>();
 
     const [editingCell, setEditingCell] = React.useState<{
@@ -88,7 +94,7 @@ export const ProductsPreview = ({ products }: { products: Product[] }) => {
     return (
         <Table>
             <TableHeader>
-                <TableHeaders title="Products" />
+                <TableHeaders title="Products" isTaxInPercentage={isTaxInPercentage} />
             </TableHeader>
             <TableBody>
                 {localProducts.map((product) => (
