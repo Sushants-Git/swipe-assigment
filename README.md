@@ -52,6 +52,11 @@
   "isTaxInPercentage": boolean
 }
 ```
+## Alerts
+If the user uploads a file (`pdf/img`) that does not contain the relavent details, they get the alert shown below
+
+![image](https://github.com/user-attachments/assets/d96aaa4b-fc32-4503-945e-4ec3576975fc)
+
 
 ## Running the project locally
 
