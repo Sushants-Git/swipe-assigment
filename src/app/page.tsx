@@ -8,7 +8,6 @@ import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 
 import { store, AppDispatch, RootState } from "./state/store";
-import { changeHeader } from "./state/table/header-row-slice";
 import { setAllData } from "./state/preview/preview-slice";
 
 import { ModeToggle } from "@/components/mode-toggle";
@@ -22,7 +21,6 @@ import getSheetDetails from "./utils/getSheetDetails";
 import getRandomRows from "./utils/getRandomRows";
 
 import processDataWithMapping from "./utils/initialFilling/processDataWithMapping";
-import { setMapping } from "./state/mapping/mapping-slice";
 import { setIsTaxInPercentage } from "./state/tax/tax-slice";
 
 export type Mapping = {
@@ -137,7 +135,6 @@ function App() {
         }
 
         const randomRows = getRandomRows(wb, headerRowNumber + 1, gapAt, 3);
-        dispatch(changeHeader(headerRow));
 
         extractExcel.mutate(
             { headerRow, randomRows },
