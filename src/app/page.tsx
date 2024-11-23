@@ -94,7 +94,7 @@ function App() {
             formData.append("file", file);
             formData.append("type", type);
 
-            const res = await fetch("/api/pdf", {
+            const res = await fetch("/api/pdf-and-img", {
                 method: "POST",
                 body: formData,
             });
