@@ -8,6 +8,7 @@ import { motion } from "motion/react";
 import { Pencil } from "lucide-react";
 import { editItemById } from "@/app/state/preview/preview-slice";
 import React, { useEffect } from "react";
+import isNumber from "@/app/utils/isNumber";
 
 const EditIcon = () => (
     <Pencil className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -36,9 +37,6 @@ export const ProductsPreview = ({
     const renderCell = (id: number, key: string, value?: string | number) => {
         const isEditing = editingCell?.id === id && editingCell?.key === key;
         const isEmpty = value === "" || value === null || value === undefined;
-        const isNumber =
-            typeof value === "number" ||
-            (value !== "" && !isNaN(Number(value)) && typeof value !== "boolean");
 
         const handleOnBlur = () => {
             dispatch(
@@ -73,7 +71,7 @@ export const ProductsPreview = ({
             );
         }
 
-        const formattedValue = isNumber ? Number(value).toFixed(2) : (value ?? "");
+        const formattedValue = isNumber(value) ? Number(value).toFixed(2) : (value ?? "");
 
         return (
             <motion.div
