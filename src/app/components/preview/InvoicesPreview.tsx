@@ -1,9 +1,9 @@
 import { Table, TableHeader, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { Invoice, TableHeaders } from "../tabs/TableHeaders";
-import React from "react";
+import React, { useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/app/state/store";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/app/state/store";
 import { editItemById } from "@/app/state/preview/preview-slice";
 import { motion } from "motion/react";
 import { Pencil } from "lucide-react";
@@ -26,6 +26,10 @@ export const InvoicesPreview = ({
         key: string;
     } | null>(null);
     const [localInvoices, setLocalInvoices] = React.useState<Invoice[]>(invoices);
+
+    useEffect(() => {
+        setLocalInvoices(invoices);
+    }, [invoices]);
 
     const renderCell = (id: number, key: string, value?: string | number) => {
         const isEditing = editingCell?.id === id && editingCell?.key === key;

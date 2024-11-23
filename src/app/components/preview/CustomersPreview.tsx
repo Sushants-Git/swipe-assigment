@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { motion } from "motion/react";
 import { Pencil } from "lucide-react";
 import { editItemById } from "@/app/state/preview/preview-slice";
-import React from "react";
+import React, { useEffect } from "react";
 
 const EditIcon = () => (
     <Pencil className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -21,6 +21,10 @@ export const CustomersPreview = ({ customers }: { customers: Customer[] }) => {
     } | null>(null);
 
     const [localCustomers, setLocalCustomers] = React.useState<Customer[]>(customers);
+
+    useEffect(() => {
+        setLocalCustomers(customers);
+    }, [customers]);
 
     const renderCell = (
         id: number,

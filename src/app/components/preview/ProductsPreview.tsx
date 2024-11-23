@@ -1,13 +1,13 @@
 import { Table, TableHeader, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { Product, TableHeaders } from "../tabs/TableHeaders";
 
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/app/state/store";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/app/state/store";
 import { Input } from "@/components/ui/input";
 import { motion } from "motion/react";
 import { Pencil } from "lucide-react";
 import { editItemById } from "@/app/state/preview/preview-slice";
-import React from "react";
+import React, { useEffect } from "react";
 
 const EditIcon = () => (
     <Pencil className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -28,6 +28,10 @@ export const ProductsPreview = ({
     } | null>(null);
 
     const [localProducts, setLocalProducts] = React.useState<Product[]>(products);
+
+    useEffect(() => {
+        setLocalProducts(products);
+    }, [products]);
 
     const renderCell = (id: number, key: string, value?: string | number) => {
         const isEditing = editingCell?.id === id && editingCell?.key === key;
