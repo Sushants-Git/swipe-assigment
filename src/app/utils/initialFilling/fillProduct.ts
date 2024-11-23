@@ -1,4 +1,4 @@
-import { Invoice, Product } from "@/app/components/tabs/TableHeaders";
+import { Invoice, Product } from "@/app/components/TableHeaders";
 
 function fillProduct(invoices: Invoice[]): Product[] {
     const productMap = new Map<string, Product>();

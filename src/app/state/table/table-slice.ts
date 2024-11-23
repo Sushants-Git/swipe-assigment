@@ -1,4 +1,4 @@
-import { Customer, Invoice, Product } from "@/app/components/tabs/TableHeaders";
+import { Customer, Invoice, Product } from "@/app/components/TableHeaders";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface tableState {

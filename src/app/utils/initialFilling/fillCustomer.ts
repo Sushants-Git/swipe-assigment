@@ -1,5 +1,5 @@
 import ExcelJS from "exceljs";
-import { Customer, Invoice } from "@/app/components/tabs/TableHeaders";
+import { Customer, Invoice } from "@/app/components/TableHeaders";
 
 export default function fillCustomer(
     wb: ExcelJS.Workbook,

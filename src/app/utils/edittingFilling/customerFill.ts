@@ -1,4 +1,4 @@
-import { Customer, Invoice } from "@/app/components/tabs/TableHeaders";
+import { Customer, Invoice } from "@/app/components/TableHeaders";
 
 export function customerFill(existingCustomers: Customer[], newInvoices: Invoice[]): Customer[] {
     const customerAggregates = new Map<

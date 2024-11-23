@@ -1,4 +1,4 @@
-import { Invoice } from "@/app/components/tabs/TableHeaders";
+import { Invoice } from "@/app/components/TableHeaders";
 import ExcelJS from "exceljs";
 
 export default function fillInvoice(

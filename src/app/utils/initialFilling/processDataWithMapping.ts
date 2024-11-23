@@ -2,7 +2,7 @@ import { DataMappings, Row } from "@/app/page";
 
 import ExcelJS from "exceljs";
 
-import { Customer, Invoice, Product } from "../../components/tabs/TableHeaders";
+import { Customer, Invoice, Product } from "../../components/TableHeaders";
 import fillInvoice from "./filledInvoice";
 import fillCustomer from "./fillCustomer";
 import fillProduct from "./fillProduct";

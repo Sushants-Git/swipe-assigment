@@ -1,4 +1,4 @@
-import { Customer, Invoice, Product } from "@/app/components/tabs/TableHeaders";
+import { Customer, Invoice, Product } from "@/app/components/TableHeaders";
 import { customerFill } from "@/app/utils/edittingFilling/customerFill";
 import fillProduct from "@/app/utils/initialFilling/fillProduct";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
