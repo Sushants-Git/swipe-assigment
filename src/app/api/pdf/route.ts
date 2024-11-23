@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dedent from "dedent";
 
-export const POST = async (req: Request) => {
+export const POST = async (req: Request) =>  {
     const formData = await req.formData();
 
     const file = formData.get("file") as File;
