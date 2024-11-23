@@ -22,6 +22,8 @@ import getRandomRows from "./utils/getRandomRows";
 
 import processDataWithMapping from "./utils/initialFilling/processDataWithMapping";
 import { tableState } from "./state/table/table-slice";
+import areAllTablesEmpty from "./utils/areAllTablesEmpty";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export type Mapping = {
     sourceColumnName: string;
@@ -53,6 +55,8 @@ function App() {
     const [activeTab, setActiveTab] = useState<"invoices" | "products" | "customers">("invoices");
     const [file, setFile] = useState<File | null>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
+
+    const [showAlert, setShowAlert] = useState(false);
 
     const extractedData = useSelector((state: RootState) => state.preview);
     const dispatch = useDispatch<AppDispatch>();
@@ -111,6 +115,7 @@ function App() {
         if (selectedFile) {
             extractExcel.reset();
             extractPdf.reset();
+            setShowAlert(false);
         }
         setFile(selectedFile || null);
     };
@@ -133,6 +138,10 @@ function App() {
             onSuccess: (data) => {
                 if (data?.res as tableState) {
                     const { invoices, products, customers, isTaxInPercentage } = data.res as tableState;
+
+                    if (areAllTablesEmpty({ invoices, products, customers })) {
+                        setShowAlert(true);
+                    }
 
                     dispatch(
                         setPreviewData({
@@ -218,6 +227,14 @@ function App() {
 
     return (
         <Layout>
+            {showAlert && (
+                <Alert variant="destructive" className="mb-4">
+                    <AlertTitle>Couldn&apos;t find any relavent details in the file</AlertTitle>
+                    <AlertDescription>
+                        Please upload an Excel, PDF, or image file that contains the required data
+                    </AlertDescription>
+                </Alert>
+            )}
             <FileUploader handleFileUpload={handleFileUpload} fileName={file?.name}>
                 <DataPreview
                     dialogOpen={dialogOpen}
